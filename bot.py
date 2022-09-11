@@ -15,7 +15,7 @@ from helpers import adjacent_days, plist, Weekdays, Emojis
 from mongo_tracker import Tracker
 from tasks import BotTasks
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 # Load in configs
 try:
