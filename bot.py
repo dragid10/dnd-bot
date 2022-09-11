@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import urllib.parse
 from asyncio import TimeoutError
@@ -14,7 +15,7 @@ from helpers import adjacent_days, plist, Weekdays, Emojis
 from mongo_tracker import Tracker
 from tasks import BotTasks
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 # Load in configs
 try:
@@ -46,6 +47,7 @@ except KeyError:
 tz = timezone('US/Eastern')
 intents = Intents.default()
 intents.members = True
+intents.message_content = True
 description = """A bot to assist with hearding players for D&D sessions."""
 bot = commands.Bot(command_prefix=bot_prefix, description=description, intents=intents)
 startTime = datetime.now(tz).replace(microsecond=0)
@@ -348,6 +350,17 @@ async def alert_dispatcher(force=False):
         bt.reset(config, tracker)
 
 
-if __name__ == "__main__":
+async def main():
+    # do other async things
     alert_dispatcher.start()
-    bot.run(token)
+
+    # start the client
+    async with bot:
+        await bot.start(token)
+
+
+if __name__ == "__main__":
+    # asyncio.set_event_loop(asyncio.new_event_loop())
+    # alert_dispatcher.start()
+    # bot.run(token)
+    asyncio.run(main())
