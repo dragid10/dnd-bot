@@ -81,6 +81,9 @@ class Tracker:
         except TypeError:
             return None
 
+    def get_dm(self, guild_id):
+        pass
+
     def reset(self, guild_id):
         query = {"guild": guild_id}
         self.attendees.delete_one(query)
