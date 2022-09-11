@@ -2,3 +2,5 @@ config.ini
 __pycache__/*
 .vscode/*
 *~
+
+.python-version
