@@ -147,7 +147,7 @@ async def ask_for_day(ctx, ask):
         return user == ctx.author and any(e.value == str(reaction) for e in Emojis)
 
     try:
-        reaction, _ = await bot.wait_for("reaction_add", timeout=15.0, check=check)
+        reaction, _ = await bot.wait_for("reaction_add", timeout=20.0, check=check)
     except TimeoutError:
         await ctx.message.channel.send("Fail! React faster!")
         to_return = None
