@@ -54,11 +54,14 @@ intents = Intents.default()
 intents.members = True
 intents.message_content = True
 description = """A bot to assist with hearding players for D&D sessions."""
-bot = commands.Bot(command_prefix=bot_prefix, description=description, intents=intents)
+bot = commands.Bot(command_prefix=bot_prefix,
+                   description=description,
+                   intents=intents)
 startTime = datetime.now(tz).replace(microsecond=0)
 
 # Connect o mongo and create a client
-connect_str = f"mongodb+srv://{urllib.parse.quote(db_user)}:{urllib.parse.quote(db_password)}@{db_host}".strip()
+connect_str = f"mongodb+srv://{urllib.parse.quote(db_user)}:{urllib.parse.quote(db_password)}@{db_host}".strip(
+)
 mongo_client = MongoClient(connect_str)
 
 tracker = Tracker(mongo_client["dnd-bot"])
@@ -67,7 +70,8 @@ tracker = Tracker(mongo_client["dnd-bot"])
 # Events
 @bot.event
 async def on_ready():
-    logging.debug(f"[{startTime}] - Logged in as {bot.user.name} - {bot.user.id}")
+    logging.debug(
+        f"[{startTime}] - Logged in as {bot.user.name} - {bot.user.id}")
 
 
 # Commands
@@ -83,7 +87,8 @@ async def status(ctx):
         db_status = "online"
 
     # Get git commit hash so we know what version of the bot we're running
-    git = check_output(["git", "rev-parse", "--short", "HEAD"]).decode("ascii").strip()
+    git = check_output(["git", "rev-parse", "--short",
+                        "HEAD"]).decode("ascii").strip()
     now = datetime.now(tz).replace(microsecond=0)
     await ctx.message.channel.send(
         f"Up for **{now - startTime}** on `{git}`. Time is {datetime.now(tz).strftime('%T')} eastern. Database is **{db_status}**."
@@ -130,8 +135,7 @@ async def config(ctx):
 
 async def ask_for_time(ctx):
     my_message = await ctx.message.channel.send(
-        "Configure Session time ET (24h HH:MM):"
-    )
+        "Configure Session time ET (24h HH:MM):")
 
     def check(m):
         return ctx.author == m.author
@@ -154,10 +158,13 @@ async def ask_for_day(ctx, ask):
         await my_message.add_reaction(emoji.value)
 
     def check(reaction, user):
-        return user == ctx.author and any(e.value == str(reaction) for e in Emojis)
+        return user == ctx.author and any(e.value == str(reaction)
+                                          for e in Emojis)
 
     try:
-        reaction, _ = await bot.wait_for("reaction_add", timeout=20.0, check=check)
+        reaction, _ = await bot.wait_for("reaction_add",
+                                         timeout=20.0,
+                                         check=check)
     except TimeoutError:
         await ctx.message.channel.send("Fail! React faster!")
         to_return = None
@@ -183,31 +190,26 @@ async def register(ctx):
 @bot.command()
 async def players(ctx):
     players = tracker.get_players_for_guild(ctx.guild.id)
-    await ctx.message.channel.send(
-        embed=Embed().from_dict(
-            {
-                "title": "Registered Players",
-                "fields": [
-                    {"name": player["name"], "value": f"ID: {player['id']}"}
-                    for player in players
-                ],
-            }
-        )
-    )
+    await ctx.message.channel.send(embed=Embed().from_dict({
+        "title":
+        "Registered Players",
+        "fields": [{
+            "name": player["name"],
+            "value": f"ID: {player['id']}"
+        } for player in players],
+    }))
 
 
 @bot.command()
 async def cmds(ctx):
-    await ctx.message.channel.send(
-        embed=Embed().from_dict(
-            {
-                "title": "Available Commands",
-                "fields": [
-                    {"name": cmd.name, "value": f"`{cmd.name}`"} for cmd in bot.commands
-                ],
-            }
-        )
-    )
+    await ctx.message.channel.send(embed=Embed().from_dict({
+        "title":
+        "Available Commands",
+        "fields": [{
+            "name": cmd.name,
+            "value": f"`{cmd.name}`"
+        } for cmd in bot.commands],
+    }))
 
 
 @bot.command()
@@ -230,18 +232,24 @@ async def skip(ctx):
 @bot.command()
 async def list(ctx):
     accept, decline, dream, cancel = tracker.get_all(ctx.guild.id)
-    await ctx.message.channel.send(
-        embed=Embed().from_dict(
+    await ctx.message.channel.send(embed=Embed().from_dict({
+        "title":
+        "Lists",
+        "fields": [
             {
-                "title": "Lists",
-                "fields": [
-                    {"name": "Accepted", "value": plist(accept)},
-                    {"name": "Declined", "value": plist(decline)},
-                    {"name": "Cancelled", "value": plist(cancel)},
-                ],
-            }
-        )
-    )
+                "name": "Accepted",
+                "value": plist(accept)
+            },
+            {
+                "name": "Declined",
+                "value": plist(decline)
+            },
+            {
+                "name": "Cancelled",
+                "value": plist(cancel)
+            },
+        ],
+    }))
 
 
 # Support rsvp [accept|decline]
@@ -256,41 +264,36 @@ async def rsvp(ctx):
 @rsvp.command(name="accept")
 async def _accept(ctx):
     tracker.add_attendee_for_guild(ctx.guild.id, ctx.author)
-    await ctx.message.channel.send(
-        embed=Embed().from_dict(
+    await ctx.message.channel.send(embed=Embed().from_dict({
+        "fields": [
             {
-                "fields": [
-                    {
-                        "name": "Accepted",
-                        "value": "Thanks for confirming!",
-                    },
-                    {
-                        "name": "Attendees",
-                        "value": plist(tracker.get_attendees_for_guild(ctx.guild.id)),
-                    },
-                ]
-            }
-        )
-    )
+                "name": "Accepted",
+                "value": "Thanks for confirming!",
+            },
+            {
+                "name": "Attendees",
+                "value": plist(tracker.get_attendees_for_guild(ctx.guild.id)),
+            },
+        ]
+    }))
     tracker.rm_decliner_for_guild(ctx.guild.id, ctx.author)
 
 
 @rsvp.command(name="decline")
 async def _decline(ctx):
     tracker.add_decliner_for_guild(ctx.guild.id, ctx.author)
-    await ctx.message.channel.send(
-        embed=Embed().from_dict(
+    await ctx.message.channel.send(embed=Embed().from_dict({
+        "fields": [
             {
-                "fields": [
-                    {"name": "Declined", "value": "No problem, see you next time!"},
-                    {
-                        "name": "Those that have declined",
-                        "value": plist(tracker.get_decliners_for_guild(ctx.guild.id)),
-                    },
-                ]
-            }
-        )
-    )
+                "name": "Declined",
+                "value": "No problem, see you next time!"
+            },
+            {
+                "name": "Those that have declined",
+                "value": plist(tracker.get_decliners_for_guild(ctx.guild.id)),
+            },
+        ]
+    }))
     tracker.rm_attendee_for_guild(ctx.guild.id, ctx.author)
 
 
@@ -304,22 +307,18 @@ async def vote(ctx):
 @vote.command(name="cancel")
 async def _cancel(ctx):
     tracker.add_canceller_for_guild(ctx.guild.id, ctx.author)
-    await ctx.message.channel.send(
-        embed=Embed().from_dict(
+    await ctx.message.channel.send(embed=Embed().from_dict({
+        "fields": [
             {
-                "fields": [
-                    {
-                        "name": "Cancelling",
-                        "value": "You've voted to cancel this week.",
-                    },
-                    {
-                        "name": "Others that have cancelled",
-                        "value": plist(tracker.get_cancellers_for_guild(ctx.guild.id)),
-                    },
-                ]
-            }
-        )
-    )
+                "name": "Cancelling",
+                "value": "You've voted to cancel this week.",
+            },
+            {
+                "name": "Others that have cancelled",
+                "value": plist(tracker.get_cancellers_for_guild(ctx.guild.id)),
+            },
+        ]
+    }))
 
 
 bt = BotTasks(bot)
@@ -341,13 +340,15 @@ async def alert_dispatcher(force=False):
     # Check if all players have registered for the upcoming session (on the first day)
     for config in tracker.get_first_alert_configs(today):
         if not tracker.is_full_group(config["guild"]):
-            unanswered = tracker.get_unanswered_players(guild_id=config["guild"])
+            unanswered = tracker.get_unanswered_players(
+                guild_id=config["guild"])
             await bt.first_alert(config, unanswered)
 
     # Check if all players have registered for the upcoming session (but on the second day)
     for config in tracker.get_second_alert_configs(today):
         if not tracker.is_full_group(config["guild"]):
-            unanswered = tracker.get_unanswered_players(guild_id=config["guild"])
+            unanswered = tracker.get_unanswered_players(
+                guild_id=config["guild"])
             await bt.second_alert(config, unanswered)
 
     # DM the GM the accept/reject rsvp list
