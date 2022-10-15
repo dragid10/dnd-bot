@@ -179,14 +179,14 @@ class Tracker:
         )
 
     def create_guild_config(
-            self,
-            guild_id,
-            dm_user,
-            session_day,
-            session_time,
-            meeting_room,
-            first_alert,
-            second_alert,
+        self,
+        guild_id,
+        dm_user,
+        session_day,
+        session_time,
+        meeting_room,
+        first_alert,
+        second_alert,
     ):
         return self.config.update_one(
             {"guild": guild_id},
