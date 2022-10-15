@@ -1,5 +1,7 @@
-from enum import Enum, unique
-from typing import List, Tuple
+from enum import Enum
+from enum import unique
+from typing import List
+from typing import Tuple
 
 
 @unique
