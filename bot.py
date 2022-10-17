@@ -79,7 +79,7 @@ async def status(ctx):
     else:
         db_status = "online"
 
-    # Get git commit hash so we know what version of the bot we're running
+    # Get git commit hash, so we know what version of the bot we're running
     git = check_output(["git", "rev-parse", "--short", "HEAD"]).decode("ascii").strip()
     now = datetime.now(tz).replace(microsecond=0)
     await ctx.message.channel.send(
