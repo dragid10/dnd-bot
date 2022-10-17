@@ -229,9 +229,9 @@ async def inv(ctx):
         if (
                 len(
                     (
-                            inv := tracker.get_inventory_for_player(
-                                ctx.guild.id, ctx.message.author
-                            )
+                        inv := tracker.get_inventory_for_player(
+                            ctx.guild.id, ctx.message.author
+                        )
                     )
                 )
                 == 0
