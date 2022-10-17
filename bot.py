@@ -45,7 +45,7 @@ except KeyError:
 
 # Bot init
 tz = timezone('US/Eastern')
-intents = Intents.default()
+intents = Intents.all()
 intents.members = True
 intents.message_content = True
 description = """A bot to assist with hearding players for D&D sessions."""
@@ -63,6 +63,8 @@ tracker = Tracker(mongo_client["dnd-bot"])
 @bot.event
 async def on_ready():
     logging.debug(f"[{startTime}] - Logged in as {bot.user.name} - {bot.user.id}")
+
+    await alert_dispatcher.start()
 
 
 # Commands
@@ -319,9 +321,11 @@ bt = BotTasks(bot)
 
 @tasks.loop(hours=1)
 async def alert_dispatcher(force=False):
-    logging.debug(f"Checking to see if it is time to remind players")
-    await bot.wait_until_ready()
-    logging.debug(f"Bot is ready")
+    logging.info(f"Checking to see if it is time to remind players")
+    logging.debug(f"Logging into Discord")
+    await bot.login(token)
+
+    # See if its time to send message asking if players are available
     if int(datetime.now(tz).strftime("%H")) != alert_time and force is False:
         logging.debug(f"It is not yet time to alert")
         return
@@ -345,22 +349,13 @@ async def alert_dispatcher(force=False):
     # DM the GM the accept/reject rsvp list
     for config in tracker.get_session_day_configs(today):
         await bt.send_dm(config, tracker)
-    # Reset the rsvp list
+    # Reset rsvp list
     for config in tracker.get_session_day_configs(day_before):
         bt.reset(config, tracker)
 
 
-async def main():
-    # do other async things
-    alert_dispatcher.start()
-
-    # start the client
-    async with bot:
-        await bot.start(token)
-
-
 if __name__ == "__main__":
-    # asyncio.set_event_loop(asyncio.new_event_loop())
-    # alert_dispatcher.start()
-    # bot.run(token)
-    asyncio.run(main())
+    try:
+        bot.run(token)
+    finally:
+        logging.debug("Ending bot")
