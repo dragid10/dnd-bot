@@ -390,10 +390,8 @@ async def alert_dispatcher(force=False):
     logging.info(f"Checking to see if it is time to remind players")
     logging.debug(f"Logging into Discord")
     await bot.login(token)
-    logging.debug(f"Checking to see if bot is ready")
-    await bot.wait_until_ready()
-    logging.debug(f"Bot is ready")
 
+    # See if its time to send message asking if players are available
     if int(datetime.now(tz).strftime("%H")) != alert_time and force is False:
         logging.debug(f"It is not yet time to alert")
         return
