@@ -41,7 +41,7 @@ except KeyError:
     alert_time = int(environ["alertTime"])
 
 # Bot init
-tz = timezone('US/Eastern')
+tz = timezone("US/Eastern")
 intents = Intents.all()
 intents.members = True
 description = """A bot to assist with hearding players for D&D sessions."""
@@ -66,7 +66,7 @@ async def on_ready():
 @bot.command()
 async def status(ctx):
     try:
-        dbh['admin'].command("ping")
+        dbh["admin"].command("ping")
     except ConnectionFailure as ce:
         db_status = "offline"
         logging.exception(ce)
@@ -108,7 +108,9 @@ async def config(ctx):
 
 
 async def ask_for_time(ctx):
-    my_message = await ctx.message.channel.send("Configure Session time ET (24h HH:MM):")
+    my_message = await ctx.message.channel.send(
+        "Configure Session time ET (24h HH:MM):"
+    )
 
     def check(m):
         return ctx.author == m.author
@@ -227,14 +229,14 @@ async def list(ctx):
 async def inv(ctx):
     if ctx.invoked_subcommand is None:
         if (
-                len(
-                    (
-                        inv := tracker.get_inventory_for_player(
-                            ctx.guild.id, ctx.message.author
-                        )
+            len(
+                (
+                    inv := tracker.get_inventory_for_player(
+                        ctx.guild.id, ctx.message.author
                     )
                 )
-                == 0
+            )
+            == 0
         ):
             inv_message = "<< Empty >>"
         else:
