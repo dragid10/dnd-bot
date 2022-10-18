@@ -1,4 +1,3 @@
-import asyncio
 import logging
 import urllib.parse
 from asyncio import TimeoutError
