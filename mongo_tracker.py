@@ -240,17 +240,20 @@ class Tracker:
         )
 
     def is_full_group(self, guild_id: int) -> bool:
-        players = [player["id"] for player in self.get_players_for_guild(guild_id)]
-        attendees = [att["id"] for att in self.get_attendees_for_guild(guild_id)]
-        return len(players) == len(attendees)
+        # Check if all the players are registered as attendees
+        players = sorted([player["id"] for player in self.get_players_for_guild(guild_id)])
+        attendees = sorted([att["id"] for att in self.get_attendees_for_guild(guild_id)])
+
+        # check if attendees contains all elements of players
+        return all(elem in attendees for elem in players)
 
     def get_unanswered_players(self, guild_id: int):
-        players = [player["id"] for player in self.get_players_for_guild(guild_id)]
-        attendees = [att["id"] for att in self.get_attendees_for_guild(guild_id)]
+        players = {player["id"]: player["name"] for player in self.get_players_for_guild(guild_id)}
+        attendees = {att["id"]: att["name"] for att in self.get_attendees_for_guild(guild_id)}
         # Players: a, b, c, d | Attendees: d, b
         # Result: a, c
         # Return the difference of two or more sets as a new set. (i.e. all elements that are in this set but not the others.)
-        unanswered_players = list(set(players).difference(attendees))
+        unanswered_players = list(set(players.keys()).difference(attendees.keys()))
         if len(unanswered_players) == len(players):
             unanswered_players = ["here"]
         return unanswered_players

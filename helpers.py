@@ -52,4 +52,4 @@ def adjacent_days(dotw: int) -> Tuple[int, int]:
 
 
 def callable_username(username: str):
-    return f"@{username.strip()}"
+    return f"<@{username}>".strip()

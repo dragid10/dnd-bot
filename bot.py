@@ -336,6 +336,7 @@ async def alert_dispatcher(force=False):
     # Check if all players have registered for the upcoming session (on the first day)
     for config in tracker.get_first_alert_configs(today):
         if not tracker.is_full_group(config["guild"]):
+            logging.debug("Group is not full")
             unanswered = tracker.get_unanswered_players(guild_id=config["guild"])
             await bt.first_alert(config, unanswered)
 

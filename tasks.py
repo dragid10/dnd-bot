@@ -13,7 +13,7 @@ class BotTasks:
         at_ids = list(map(helpers.callable_username, unanswered))
 
         await channel.send(
-            f"{','.join(at_ids)} Are we good for our D&D session? Please use either `{self.bot.command_prefix}rsvp accept` or `{self.bot.command_prefix}rsvp decline`."
+            f"{', '.join(at_ids)} Are we good for our D&D session? Please use either `{self.bot.command_prefix}rsvp accept` or `{self.bot.command_prefix}rsvp decline`."
         )
 
     async def second_alert(self, config, unanswered) -> None:
