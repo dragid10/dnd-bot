@@ -255,5 +255,5 @@ class Tracker:
         # Return the difference of two or more sets as a new set. (i.e. all elements that are in this set but not the others.)
         unanswered_players = list(set(players.keys()).difference(attendees.keys()))
         if len(unanswered_players) == len(players):
-            unanswered_players = ["here"]
+            unanswered_players = ["dnd-players"]
         return unanswered_players
