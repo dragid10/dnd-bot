@@ -179,14 +179,14 @@ class Tracker:
         )
 
     def create_guild_config(
-            self,
-            guild_id,
-            dm_user,
-            session_day,
-            session_time,
-            meeting_room,
-            first_alert,
-            second_alert,
+        self,
+        guild_id,
+        dm_user,
+        session_day,
+        session_time,
+        meeting_room,
+        first_alert,
+        second_alert,
     ):
         return self.config.update_one(
             {"guild": guild_id},
@@ -241,8 +241,12 @@ class Tracker:
 
     def is_full_group(self, guild_id: int) -> bool:
         # Check if all the players are registered as attendees
-        players = sorted([player["id"] for player in self.get_players_for_guild(guild_id)])
-        attendees = sorted([att["id"] for att in self.get_attendees_for_guild(guild_id)])
+        players = sorted(
+            [player["id"] for player in self.get_players_for_guild(guild_id)]
+        )
+        attendees = sorted(
+            [att["id"] for att in self.get_attendees_for_guild(guild_id)]
+        )
 
         # check if attendees contains all elements of players
         return all(elem in attendees for elem in players)
@@ -252,8 +256,13 @@ class Tracker:
         return self._get_user(player) in players
 
     def get_unanswered_players(self, guild_id: int):
-        players = {player["id"]: player["name"] for player in self.get_players_for_guild(guild_id)}
-        attendees = {att["id"]: att["name"] for att in self.get_attendees_for_guild(guild_id)}
+        players = {
+            player["id"]: player["name"]
+            for player in self.get_players_for_guild(guild_id)
+        }
+        attendees = {
+            att["id"]: att["name"] for att in self.get_attendees_for_guild(guild_id)
+        }
         # Players: a, b, c, d | Attendees: d, b
         # Result: a, c
         # Return the difference of two or more sets as a new set. (i.e. all elements that are in this set but not the others.)

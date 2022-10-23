@@ -43,7 +43,7 @@ except KeyError:
     alert_time = int(environ["alertTime"])
 
 # Bot init
-tz = timezone('US/Eastern')
+tz = timezone("US/Eastern")
 intents = Intents.all()
 intents.members = True
 intents.message_content = True
@@ -71,7 +71,7 @@ async def on_ready():
 async def status(ctx):
     try:
         # Try a quick ping to make sure things can connect
-        mongo_client['admin'].command("ping")
+        mongo_client["admin"].command("ping")
     except ConnectionFailure as ce:
         db_status = "offline"
         logging.exception(ce)
@@ -94,8 +94,11 @@ async def config(ctx):
     :param ctx: Context of the discord bot
     :return:
     """
-    questions = ["What day is the session typically had?", "When would you like to send the first alert?",
-                 "When would you like to send the second alert?"]
+    questions = [
+        "What day is the session typically had?",
+        "When would you like to send the first alert?",
+        "When would you like to send the second alert?",
+    ]
     answers = [await ask_for_day(ctx, q) for q in questions]
 
     def map_emoji_to_day_value(emoji):
@@ -122,7 +125,9 @@ async def config(ctx):
 
 
 async def ask_for_time(ctx):
-    my_message = await ctx.message.channel.send("Configure Session time ET (24h HH:MM):")
+    my_message = await ctx.message.channel.send(
+        "Configure Session time ET (24h HH:MM):"
+    )
 
     def check(m):
         return ctx.author == m.author
@@ -247,7 +252,9 @@ async def rsvp(ctx):
 @rsvp.command(name="accept")
 async def _accept(ctx):
     if not tracker.is_registered_player(ctx.guild.id, ctx.author):
-        await ctx.message.reply(f"You are not a registered player in this campaign, so you can not rsvp")
+        await ctx.message.reply(
+            f"You are not a registered player in this campaign, so you can not rsvp"
+        )
     else:
         tracker.add_attendee_for_guild(ctx.guild.id, ctx.author)
         await ctx.message.reply(
@@ -260,7 +267,9 @@ async def _accept(ctx):
                         },
                         {
                             "name": "Attendees",
-                            "value": plist(tracker.get_attendees_for_guild(ctx.guild.id)),
+                            "value": plist(
+                                tracker.get_attendees_for_guild(ctx.guild.id)
+                            ),
                         },
                     ]
                 }
@@ -272,7 +281,9 @@ async def _accept(ctx):
 @rsvp.command(name="decline")
 async def _decline(ctx):
     if not tracker.is_registered_player(ctx.guild.id, ctx.author):
-        await ctx.message.reply(f"You are not a registered player in this campaign so you can not rsvp")
+        await ctx.message.reply(
+            f"You are not a registered player in this campaign so you can not rsvp"
+        )
     else:
         tracker.add_decliner_for_guild(ctx.guild.id, ctx.author)
         await ctx.message.reply(
@@ -282,7 +293,9 @@ async def _decline(ctx):
                         {"name": "Declined", "value": "No problem, see you next time!"},
                         {
                             "name": "Those that have declined",
-                            "value": plist(tracker.get_decliners_for_guild(ctx.guild.id)),
+                            "value": plist(
+                                tracker.get_decliners_for_guild(ctx.guild.id)
+                            ),
                         },
                     ]
                 }
@@ -295,9 +308,7 @@ async def _decline(ctx):
 @bot.group()
 async def vote(ctx):
     if ctx.invoked_subcommand is None:
-        await ctx.message.channel.send(
-            f"Please `{bot_prefix}vote cancel`"
-        )
+        await ctx.message.channel.send(f"Please `{bot_prefix}vote cancel`")
 
 
 @vote.command(name="cancel")
