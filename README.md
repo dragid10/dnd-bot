@@ -44,6 +44,17 @@ botPrefix =
 host =
 port =
 password =
+
+[alerts]
+# Hour (24H) of session time
+# Example: time = 12
+time =
+
+[campaign]
+# Campaign details! 
+# Alias would be used if you have a shortname or acronym for your campaign (if left blank, name of campaign will be used instead)
+name = 
+alias =
 ```
 
 > Note: This can all be done with environment variables instead. In the absence of a config file, the bot will fall 
