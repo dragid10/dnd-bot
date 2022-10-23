@@ -247,7 +247,7 @@ async def rsvp(ctx):
 @rsvp.command(name="accept")
 async def _accept(ctx):
     if not tracker.is_registered_player(ctx.guild.id, ctx.author):
-        await ctx.message.reply(f"You are not a registered player in this campaign so you can not rsvp")
+        await ctx.message.reply(f"You are not a registered player in this campaign, so you can not rsvp")
     else:
         tracker.add_attendee_for_guild(ctx.guild.id, ctx.author)
         await ctx.message.reply(
