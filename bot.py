@@ -31,6 +31,9 @@ try:
     db_user = bot_config["db"]["user"]
     db_password = bot_config["db"]["password"]
     alert_time = int(bot_config["alerts"]["time"])
+    campaign_name = bot_config["campaign"]["name"] or "D&D"
+    campaign_alias = bot_config["campaign"]["alias"] or campaign_name
+
 except KeyError:
     # Fall back to environment variables
     from os import environ
@@ -43,7 +46,8 @@ except KeyError:
     db_user = config("dbUser")
     db_password = config("dbPassword")
     alert_time = config("alertTime", default="12", cast=int)
-
+    campaign_name = config("campaignName", default="D&D")
+    campaign_alias = config("campaignAlias", default=campaign_name)
 
 # Bot init
 tz = timezone('US/Eastern')
