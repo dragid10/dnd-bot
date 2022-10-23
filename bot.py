@@ -44,13 +44,6 @@ except KeyError:
     db_password = config("dbPassword")
     alert_time = config("alertTime", default="12", cast=int)
 
-    # token = environ["token"]
-    # bot_prefix = environ["botPrefix"]
-    # db_host = environ["dbHost"]
-    # db_port = int(environ["dbPort"])
-    # db_user = environ["dbUser"]
-    # db_password = environ["dbPassword"]
-    # alert_time = int(environ["alertTime"])
 
 # Bot init
 tz = timezone('US/Eastern')
