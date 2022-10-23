@@ -250,7 +250,7 @@ async def _accept(ctx):
         await ctx.message.reply(f"You are not a registered player in this campaign so you can not rsvp")
     else:
         tracker.add_attendee_for_guild(ctx.guild.id, ctx.author)
-        await ctx.message.channel.send(
+        await ctx.message.reply(
             embed=Embed().from_dict(
                 {
                     "fields": [
@@ -275,7 +275,7 @@ async def _decline(ctx):
         await ctx.message.reply(f"You are not a registered player in this campaign so you can not rsvp")
     else:
         tracker.add_decliner_for_guild(ctx.guild.id, ctx.author)
-        await ctx.message.channel.send(
+        await ctx.message.reply(
             embed=Embed().from_dict(
                 {
                     "fields": [
