@@ -38,6 +38,7 @@ token = BOT_TOKEN_HERE
 
 # If you want %, you'll need this as %%
 botPrefix =
+sessionVC =
 
 [db]
 # MongoDB connection details
@@ -53,8 +54,10 @@ time =
 [campaign]
 # Campaign details! 
 # Alias would be used if you have a shortname or acronym for your campaign (if left blank, name of campaign will be used instead)
+# VC = Voice Channel name used for session
 name = 
 alias =
+vc = 
 ```
 
 > Note: This can all be done with environment variables instead. In the absence of a config file, the bot will fall 
