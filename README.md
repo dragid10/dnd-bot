@@ -1,4 +1,5 @@
 [![Prod Deploy](https://github.com/dragid10/dnd-bot/actions/workflows/deploy.yml/badge.svg)](https://github.com/dragid10/dnd-bot/actions/workflows/deploy.yml)
+
 # Discord D&D Gathering Bot
 
 Bot to help you heard your players.
@@ -24,7 +25,6 @@ All commands must be prefixed (e.g. `!ping`). The prefix is determined by the [s
 - `register`: Registers player to their specific guild to be counted as a member of the game. This helps manage the count for messages/reminders pushed to the server channel.
 - `unregister`: Unregisters player from the game.
 - `players`: Displays list of current registered players with their username and unique ID.
-
 
 ## Config
 
@@ -54,19 +54,18 @@ password =
 time =
 
 [campaign]
-# Campaign details! 
+# Campaign details!
 # Alias would be used if you have a shortname or acronym for your campaign (if left blank, name of campaign will be used instead)
-name = 
+name =
 alias =
 ```
 
-> Note: This can all be done with environment variables instead. In the absence of a config file, the bot will fall 
+> Note: This can all be done with environment variables instead. In the absence of a config file, the bot will fall
 > back to using environment variables.
-
 
 ## Discord Config
 
-After inviting the bot, the DM should use the `config` command in the "meeting hall" channel (i.e. the channel you wish 
+After inviting the bot, the DM should use the `config` command in the "meeting hall" channel (i.e. the channel you wish
 to receive alerts and keep track of players).
 
 - session day: Day of the session.
