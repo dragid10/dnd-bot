@@ -7,7 +7,7 @@ name = "pypi"
 "discord.py" = "*"
 pymongo = "*"
 "pymongo[srv]" = "*"
-python-decouple = "*"
+python-decouple = "*" # https://pypi.org/project/python-decouple/
 pytz = "*"
 
 [dev-packages]
