@@ -33,6 +33,7 @@ try:
     alert_time = int(bot_config["alerts"]["time"])
     campaign_name = bot_config["campaign"]["name"] or "D&D"
     campaign_alias = bot_config["campaign"]["alias"] or campaign_name
+    campaign_vc = bot_config["campaign"]["vc"]
 
 except KeyError:
     # Fall back to environment variables
@@ -48,6 +49,7 @@ except KeyError:
     alert_time = config("alertTime", default="12", cast=int)
     campaign_name = config("campaignName", default="D&D")
     campaign_alias = config("campaignAlias", default=campaign_name)
+    campaign_vc = config("campaignVC")
 
 # Bot init
 tz = timezone('US/Eastern')
