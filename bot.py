@@ -4,13 +4,15 @@ from asyncio import TimeoutError
 from datetime import datetime
 from subprocess import check_output
 
-from discord import Embed, Intents
+import discord
+from discord import Embed, Intents, app_commands, ScheduledEvent
 from discord.ext import commands, tasks
 from discord.ext.commands import Context
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
 from pytz import timezone
 
+import helpers
 from helpers import adjacent_days, plist, Weekdays, Emojis
 from mongo_tracker import Tracker
 from tasks import BotTasks
@@ -217,7 +219,7 @@ async def reset(ctx: Context):
 
 
 @bot.command()
-async def alert():
+async def alert(ctx: Context):
     await alert_dispatcher(force=True)
 
 
@@ -278,7 +280,9 @@ async def _accept(ctx: Context):
         tracker.rm_decliner_for_guild(ctx.guild.id, ctx.author)
 
     if tracker.is_full_group(ctx.guild.id):
-        await _create_session_event(ctx)
+        sess_event = await _create_session_event(ctx)
+        await ctx.message.channel.send(
+            f"All players have confirmed attendance, so I've automatically created an event: {sess_event.url}")
 
 
 @rsvp.command(name="decline")
@@ -333,10 +337,18 @@ async def _cancel(ctx: Context):
     )
 
 
-async def _create_session_event(ctx: Context):
-    pass
-    ctx.guild.create_scheduled_event(
-        name=""
+@app_commands.checks.bot_has_permissions(manage_events=True)
+async def _create_session_event(ctx: Context) -> ScheduledEvent:
+    session_vc = discord.utils.get(ctx.guild.channels, name=campaign_vc)
+
+    # Get details about session in orde to create a discord event
+    sess_day, sess_time = tracker.get_campaign_session_dt(ctx.guild.id)
+    next_sess = helpers.get_next_session_day(sess_day, sess_time)
+    return await ctx.guild.create_scheduled_event(
+        name=f"{campaign_alias} Session!",
+        description=f"Regular {campaign_alias} session",
+        start_time=next_sess,
+        channel=session_vc,
     )
 
 
