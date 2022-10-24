@@ -18,6 +18,6 @@ kill_timeout = 3
   alertTime = "12"
   campaignName = "Journey to the Center of the Earth Kingdom"
   campaignAlias = "JTCEK"
-  campaignVC = "Party"
+  discordVC = "Party"
 
 [services]

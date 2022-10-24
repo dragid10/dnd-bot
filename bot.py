@@ -35,7 +35,7 @@ try:
     alert_time = int(bot_config["alerts"]["time"])
     campaign_name = bot_config["campaign"]["name"] or "D&D"
     campaign_alias = bot_config["campaign"]["alias"] or campaign_name
-    campaign_vc = bot_config["campaign"]["vc"]
+    discord_vc = bot_config["discord"]["vc"]
 
 except KeyError:
     # Fall back to environment variables
@@ -51,7 +51,7 @@ except KeyError:
     alert_time = config("alertTime", default="12", cast=int)
     campaign_name = config("campaignName", default="D&D")
     campaign_alias = config("campaignAlias", default=campaign_name)
-    campaign_vc = config("campaignVC")
+    discord_vc = config("discordVC")
 
 # Bot init
 tz = timezone('US/Eastern')
@@ -339,7 +339,7 @@ async def _cancel(ctx: Context):
 
 @app_commands.checks.bot_has_permissions(manage_events=True)
 async def _create_session_event(ctx: Context) -> ScheduledEvent:
-    session_vc = discord.utils.get(ctx.guild.channels, name=campaign_vc)
+    session_vc = discord.utils.get(ctx.guild.channels, name=discord_vc)
 
     # Get details about session in orde to create a discord event
     sess_day, sess_time = tracker.get_campaign_session_dt(ctx.guild.id)
