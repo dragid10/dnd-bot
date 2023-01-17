@@ -349,6 +349,8 @@ async def _create_session_event(ctx: Context) -> ScheduledEvent:
         description=f"Regular {campaign_alias} session",
         start_time=next_sess,
         channel=session_vc,
+        entity_type=discord.EntityType.voice,
+        reason="D&D Session"
     )
 
 
