@@ -66,7 +66,7 @@ startTime = datetime.now(tz).replace(microsecond=0)
 connect_str = f"mongodb+srv://{urllib.parse.quote(db_user)}:{urllib.parse.quote(db_password)}@{db_host}".strip()
 mongo_client = MongoClient(connect_str)
 
-tracker = Tracker(mongo_client["dnd-bot"])
+tracker = Tracker(mongo_client["dnd-bot2"])
 
 
 # Events
@@ -105,10 +105,12 @@ async def config(ctx: Context):
     :param ctx: Context of the discord bot
     :return:
     """
-    questions = ["What day is the session typically had?", "When would you like to send the first alert?",
-                 "When would you like to send the second alert?"]
+    questions: list[tuple] = [("session-day", "What day is the session typically had?"),
+                              ("first-alert", "When would you like to send the first alert?"),
+                              ("second-alert", "When would you like to send the second alert?")]
     answers = [await ask_for_day(ctx, q) for q in questions]
-    session_vc_id = discord.utils.get(ctx.guild.voice_channels, name=discord_vc).id
+    session_vc_id = discord.utils.get(ctx.guild.voice_channels, name=discord_vc)
+    session_vc_id = session_vc_id.id
 
     def map_emoji_to_day_value(emoji):
         for e in Emojis:
@@ -117,7 +119,7 @@ async def config(ctx: Context):
 
     mapped_answers = [map_emoji_to_day_value(a) for a in answers]
     config = {
-        questions[i].replace(" ", "-", 1): mapped_answers[i]
+        questions[i][0]: mapped_answers[i]
         for i in range(len(mapped_answers))
     }
     config["session-time"] = await ask_for_time(ctx)
@@ -152,8 +154,8 @@ async def ask_for_time(ctx: Context):
         return to_return
 
 
-async def ask_for_day(ctx, ask):
-    my_message = await ctx.message.channel.send(f"Configure: {ask}")
+async def ask_for_day(ctx, ask: tuple):
+    my_message = await ctx.message.channel.send(f"Configure: {ask[1]}")
     for emoji in Emojis:
         await my_message.add_reaction(emoji.value)
 
@@ -342,8 +344,8 @@ async def _cancel(ctx: Context):
 @app_commands.checks.bot_has_permissions(manage_events=True)
 async def _create_session_event(ctx: Context) -> ScheduledEvent:
     server_id = ctx.guild.id
-    session_vc = tracker.get_voice_channel_id(server_id)
-
+    session_vc_id = tracker.get_voice_channel_id(server_id)
+    session_vc = bot.get_channel(session_vc_id)
     # Get details about session in orde to create a discord event
     sess_day, sess_time = tracker.get_campaign_session_dt(server_id)
     next_sess = helpers.get_next_session_day(sess_day, sess_time)

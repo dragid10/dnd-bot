@@ -230,10 +230,10 @@ class Tracker:
             {"config.session-day": day_of_the_week, "config.alerts": True}
         )
 
-    def get_voice_channel_id(self, guild_id: int):
+    def get_voice_channel_id(self, guild_id: int) -> int:
         res = self.config.find_one({"guild": guild_id})
         sess_config = res["config"]
-        return sess_config["vc-id"]
+        return int(sess_config["vc-id"])
 
     def get_campaign_session_dt(self, guild_id: int) -> tuple[str, str]:
         res = self.config.find_one({"guild": guild_id})
