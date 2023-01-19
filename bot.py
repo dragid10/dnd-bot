@@ -54,7 +54,7 @@ except KeyError:
     discord_vc = config("discordVC")
 
 # Bot init
-tz = timezone('US/Eastern')
+tz = timezone("US/Eastern")
 intents = Intents.all()
 intents.members = True
 intents.message_content = True
@@ -82,7 +82,7 @@ async def on_ready():
 async def status(ctx: Context):
     try:
         # Try a quick ping to make sure things can connect
-        mongo_client['admin'].command("ping")
+        mongo_client["admin"].command("ping")
     except ConnectionFailure as ce:
         db_status = "offline"
         logging.exception(ce)
@@ -105,9 +105,11 @@ async def config(ctx: Context):
     :param ctx: Context of the discord bot
     :return:
     """
-    questions: list[tuple] = [("session-day", "What day is the session typically had?"),
-                              ("first-alert", "When would you like to send the first alert?"),
-                              ("second-alert", "When would you like to send the second alert?")]
+    questions: list[tuple] = [
+        ("session-day", "What day is the session typically had?"),
+        ("first-alert", "When would you like to send the first alert?"),
+        ("second-alert", "When would you like to send the second alert?"),
+    ]
     answers = [await ask_for_day(ctx, q) for q in questions]
     session_vc_id = discord.utils.get(ctx.guild.voice_channels, name=discord_vc)
     session_vc_id = session_vc_id.id
@@ -118,10 +120,7 @@ async def config(ctx: Context):
                 return Weekdays[e.name].value
 
     mapped_answers = [map_emoji_to_day_value(a) for a in answers]
-    config = {
-        questions[i][0]: mapped_answers[i]
-        for i in range(len(mapped_answers))
-    }
+    config = {questions[i][0]: mapped_answers[i] for i in range(len(mapped_answers))}
     config["session-time"] = await ask_for_time(ctx)
     tracker.create_guild_config(
         guild_id=ctx.guild.id,
@@ -137,7 +136,9 @@ async def config(ctx: Context):
 
 
 async def ask_for_time(ctx: Context):
-    my_message = await ctx.message.channel.send("Configure Session time ET (24h HH:MM):")
+    my_message = await ctx.message.channel.send(
+        "Configure Session time ET (24h HH:MM):"
+    )
 
     def check(m):
         return ctx.author == m.author
@@ -262,7 +263,9 @@ async def rsvp(ctx: Context):
 @rsvp.command(name="accept")
 async def _accept(ctx: Context):
     if not tracker.is_registered_player(ctx.guild.id, ctx.author):
-        await ctx.message.reply(f"You are not a registered player in this campaign, so you can not rsvp")
+        await ctx.message.reply(
+            f"You are not a registered player in this campaign, so you can not rsvp"
+        )
     else:
         tracker.add_attendee_for_guild(ctx.guild.id, ctx.author)
         await ctx.message.reply(
@@ -275,7 +278,9 @@ async def _accept(ctx: Context):
                         },
                         {
                             "name": "Attendees",
-                            "value": plist(tracker.get_attendees_for_guild(ctx.guild.id)),
+                            "value": plist(
+                                tracker.get_attendees_for_guild(ctx.guild.id)
+                            ),
                         },
                     ]
                 }
@@ -286,13 +291,16 @@ async def _accept(ctx: Context):
     if tracker.is_full_group(ctx.guild.id):
         sess_event = await _create_session_event(ctx)
         await ctx.message.channel.send(
-            f"All players have confirmed attendance, so I've automatically created an event: {sess_event.url}")
+            f"All players have confirmed attendance, so I've automatically created an event: {sess_event.url}"
+        )
 
 
 @rsvp.command(name="decline")
 async def _decline(ctx: Context):
     if not tracker.is_registered_player(ctx.guild.id, ctx.author):
-        await ctx.message.reply(f"You are not a registered player in this campaign so you can not rsvp")
+        await ctx.message.reply(
+            f"You are not a registered player in this campaign so you can not rsvp"
+        )
     else:
         tracker.add_decliner_for_guild(ctx.guild.id, ctx.author)
         await ctx.message.reply(
@@ -302,7 +310,9 @@ async def _decline(ctx: Context):
                         {"name": "Declined", "value": "No problem, see you next time!"},
                         {
                             "name": "Those that have declined",
-                            "value": plist(tracker.get_decliners_for_guild(ctx.guild.id)),
+                            "value": plist(
+                                tracker.get_decliners_for_guild(ctx.guild.id)
+                            ),
                         },
                     ]
                 }
@@ -315,9 +325,7 @@ async def _decline(ctx: Context):
 @bot.group()
 async def vote(ctx: Context):
     if ctx.invoked_subcommand is None:
-        await ctx.message.channel.send(
-            f"Please `{bot_prefix}vote cancel`"
-        )
+        await ctx.message.channel.send(f"Please `{bot_prefix}vote cancel`")
 
 
 @vote.command(name="cancel")
@@ -355,7 +363,7 @@ async def _create_session_event(ctx: Context) -> ScheduledEvent:
         start_time=next_sess,
         channel=session_vc,
         entity_type=discord.EntityType.voice,
-        reason="D&D Session"
+        reason="D&D Session",
     )
 
 
