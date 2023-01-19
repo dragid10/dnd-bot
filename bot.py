@@ -66,7 +66,7 @@ startTime = datetime.now(tz).replace(microsecond=0)
 connect_str = f"mongodb+srv://{urllib.parse.quote(db_user)}:{urllib.parse.quote(db_password)}@{db_host}".strip()
 mongo_client = MongoClient(connect_str)
 
-tracker = Tracker(mongo_client["dnd-bot2"])
+tracker = Tracker(mongo_client["dnd-bot"])
 
 
 # Events
