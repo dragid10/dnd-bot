@@ -73,10 +73,12 @@ class Tracker:
 
     def get_session_cancel_flag(self, guild_id: int):
         try:
-            return self.config.find_one(
-                {"guild": guild_id}, {Collections.CANCEL_SESSION: 1, "_id": 0}
-            )[Collections.CANCEL_SESSION]
-        except Exception:
+            res = self.config.find_one(
+                {"guild": guild_id}, {Collections.CONFIG: 1, "_id": 0}
+            )[Collections.CONFIG]
+            res = res[Collections.CANCEL_SESSION]
+            return res
+        except Exception as e:
             return None
 
     def reset(self, guild_id):
@@ -91,11 +93,13 @@ class Tracker:
         self.db.config.update_one({query}, {"config.alerts": False})
 
     def cancel_session(self, guild_id: int) -> bool:
-        res: UpdateResult = self.cancel_flag.update_one(
+        guild_config = self.get_config_for_guild(guild_id)
+        guild_config.update({Collections.CANCEL_SESSION: True})
+        res: UpdateResult = self.config.update_one(
             {"guild": guild_id},
             {
                 "$set": {
-                    "config": {"cancel-session": True}
+                    "config": guild_config
                 }
             },
             upsert=True
@@ -103,11 +107,11 @@ class Tracker:
         return True if res.acknowledged else False
 
     def reset_cancel_flag(self, guild_id: int) -> bool:
-        res = self.cancel_flag.update_one(
+        res = self.config.update_one(
             {"guild": guild_id},
             {
                 "$set": {
-                    "config": {"cancel-session": False}
+                    "config": {Collections.CANCEL_SESSION: False}
                 }
             },
             upsert=True
@@ -255,7 +259,7 @@ class Tracker:
         return True if player_id == guild_dm_id else False
 
     def is_session_cancelled(self, guild_id: int) -> bool:
-        is_cancelled = self.get
+        return self.get_session_cancel_flag(guild_id)
 
     def get_unanswered_players(self, guild_id: int):
         players = {player["id"]: player["name"] for player in self.get_players_for_guild(guild_id)}
