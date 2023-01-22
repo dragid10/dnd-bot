@@ -5,7 +5,7 @@ from datetime import datetime
 from subprocess import check_output
 
 import discord
-from discord import Embed, Intents, app_commands, ScheduledEvent
+from discord import Embed, Intents, ScheduledEvent, app_commands
 from discord.ext import commands, tasks
 from discord.ext.commands import Context
 from pymongo import MongoClient
@@ -13,7 +13,7 @@ from pymongo.errors import ConnectionFailure
 from pytz import timezone
 
 import helpers
-from helpers import adjacent_days, plist, Weekdays, Emojis
+from helpers import Emojis, Weekdays, adjacent_days, plist
 from mongo_tracker import Tracker
 from tasks import BotTasks
 
@@ -39,6 +39,7 @@ try:
 except KeyError:
     # Fall back to environment variables
     from os import environ
+
     from decouple import config
 
     token = config("token")
