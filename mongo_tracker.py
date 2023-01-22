@@ -181,15 +181,15 @@ class Tracker:
         )
 
     def create_guild_config(
-            self,
-            guild_id: int,
-            vc_id: int,
-            dm_user: Member,
-            session_day: str,
-            session_time: str,
-            meeting_room: int,
-            first_alert: str,
-            second_alert: str,
+        self,
+        guild_id: int,
+        vc_id: int,
+        dm_user: Member,
+        session_day: str,
+        session_time: str,
+        meeting_room: int,
+        first_alert: str,
+        second_alert: str,
     ):
         return self.config.update_one(
             {"guild": guild_id},
@@ -255,8 +255,12 @@ class Tracker:
 
     def is_full_group(self, guild_id: int) -> bool:
         # Check if all the players are registered as attendees
-        players = sorted([player["id"] for player in self.get_players_for_guild(guild_id)])
-        attendees = sorted([att["id"] for att in self.get_attendees_for_guild(guild_id)])
+        players = sorted(
+            [player["id"] for player in self.get_players_for_guild(guild_id)]
+        )
+        attendees = sorted(
+            [att["id"] for att in self.get_attendees_for_guild(guild_id)]
+        )
 
         # check if attendees contains all elements of players
         return all(elem in attendees for elem in players)
@@ -266,15 +270,25 @@ class Tracker:
         return self._get_user(player) in players
 
     def get_unanswered_players(self, guild_id: int):
-        players = {player["id"]: player["name"] for player in self.get_players_for_guild(guild_id)}
-        attendees = {att["id"]: att["name"] for att in self.get_attendees_for_guild(guild_id)}
-        rejections = {rejecter["id"]: rejecter["name"] for rejecter in self.get_attendees_for_guild(guild_id)}
+        players = {
+            player["id"]: player["name"]
+            for player in self.get_players_for_guild(guild_id)
+        }
+        attendees = {
+            att["id"]: att["name"] for att in self.get_attendees_for_guild(guild_id)
+        }
+        rejections = {
+            rejecter["id"]: rejecter["name"]
+            for rejecter in self.get_attendees_for_guild(guild_id)
+        }
 
         # Players: {'a', 'b', 'c', 'd'} | Attendees: {'b', 'd'} | Rejections: {'c'}
         # set_players - set_attendees - set_rejections =
         # Result: {'a'}
         # Return the difference of two or more sets as a new set. (i.e. all elements that are in this set but not the others.)
-        unanswered_players = set(players.keys()) - set(attendees.keys()) - set(rejections.keys())
+        unanswered_players = (
+            set(players.keys()) - set(attendees.keys()) - set(rejections.keys())
+        )
 
         # Convert set into a list to make it easier to operate with
         unanswered_players = list(unanswered_players)
