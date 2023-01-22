@@ -4,6 +4,7 @@ from helpers import Collections
 
 
 class Tracker:
+
     def __init__(self, db):
         self.attendees = db[Collections.ATTENDEES]
         self.decliners = db[Collections.DECLINERS]
@@ -26,33 +27,37 @@ class Tracker:
 
     def get_attendees_for_guild(self, guild_id):
         try:
-            return self.attendees.find_one(
-                {"guild": guild_id}, {Collections.ATTENDEES: 1, "_id": 0}
-            )[Collections.ATTENDEES]
+            return self.attendees.find_one({"guild": guild_id}, {
+                Collections.ATTENDEES: 1,
+                "_id": 0
+            })[Collections.ATTENDEES]
         except TypeError:
             return []
 
     def get_decliners_for_guild(self, guild_id):
         try:
-            return self.decliners.find_one(
-                {"guild": guild_id}, {Collections.DECLINERS: 1, "_id": 0}
-            )[Collections.DECLINERS]
+            return self.decliners.find_one({"guild": guild_id}, {
+                Collections.DECLINERS: 1,
+                "_id": 0
+            })[Collections.DECLINERS]
         except TypeError:
             return []
 
     def get_cancellers_for_guild(self, guild_id):
         try:
-            return self.cancellers.find_one(
-                {"guild": guild_id}, {Collections.CANCELLERS: 1, "_id": 0}
-            )[Collections.CANCELLERS]
+            return self.cancellers.find_one({"guild": guild_id}, {
+                Collections.CANCELLERS: 1,
+                "_id": 0
+            })[Collections.CANCELLERS]
         except TypeError:
             return []
 
     def get_dreamers_for_guild(self, guild_id):
         try:
-            return self.dreamers.find_one(
-                {"guild": guild_id}, {Collections.DREAMERS: 1, "_id": 0}
-            )[Collections.DREAMERS]
+            return self.dreamers.find_one({"guild": guild_id}, {
+                Collections.DREAMERS: 1,
+                "_id": 0
+            })[Collections.DREAMERS]
         except TypeError:
             return []
 
@@ -61,25 +66,28 @@ class Tracker:
 
     def get_inventory_for_player(self, guild_id, player):
         try:
-            return self.inventories.find_one(
-                {"guild": guild_id, "player": self._get_user(player)}
-            )["inv"]
+            return self.inventories.find_one({
+                "guild": guild_id,
+                "player": self._get_user(player)
+            })["inv"]
         except TypeError:
             return []
 
     def get_config_for_guild(self, guild_id):
         try:
-            return self.config.find_one(
-                {"guild": guild_id}, {Collections.CONFIG: 1, "_id": 0}
-            )[Collections.CONFIG]
+            return self.config.find_one({"guild": guild_id}, {
+                Collections.CONFIG: 1,
+                "_id": 0
+            })[Collections.CONFIG]
         except TypeError:
             return None
 
     def get_players_for_guild(self, guild_id):
         try:
-            return self.players.find_one(
-                {"guild": guild_id}, {Collections.PLAYERS: 1, "_id": 0}
-            )[Collections.PLAYERS]
+            return self.players.find_one({"guild": guild_id}, {
+                Collections.PLAYERS: 1,
+                "_id": 0
+            })[Collections.PLAYERS]
         except TypeError:
             return None
 
@@ -100,74 +108,109 @@ class Tracker:
     def add_attendee_for_guild(self, guild_id, attendee):
         return self.attendees.update_one(
             {"guild": guild_id},
-            {"$addToSet": {"attendees": self._get_user(attendee)}},
+            {"$addToSet": {
+                "attendees": self._get_user(attendee)
+            }},
             upsert=True,
         )
 
     def rm_attendee_for_guild(self, guild_id, attendee):
         return self.attendees.update_one(
-            {"guild": guild_id}, {"$pull": {"attendees": self._get_user(attendee)}}
-        )
+            {"guild": guild_id},
+            {"$pull": {
+                "attendees": self._get_user(attendee)
+            }})
 
     def add_decliner_for_guild(self, guild_id, decliner):
         return self.decliners.update_one(
             {"guild": guild_id},
-            {"$addToSet": {"decliners": self._get_user(decliner)}},
+            {"$addToSet": {
+                "decliners": self._get_user(decliner)
+            }},
             upsert=True,
         )
 
     def rm_decliner_for_guild(self, guild_id, decliner):
         return self.decliners.update_one(
-            {"guild": guild_id}, {"$pull": {"decliners": self._get_user(decliner)}}
-        )
+            {"guild": guild_id},
+            {"$pull": {
+                "decliners": self._get_user(decliner)
+            }})
 
     def add_canceller_for_guild(self, guild_id, canceller):
         return self.cancellers.update_one(
             {"guild": guild_id},
-            {"$addToSet": {"cancellers": self._get_user(canceller)}},
+            {"$addToSet": {
+                "cancellers": self._get_user(canceller)
+            }},
             upsert=True,
         )
 
     def rm_canceller_for_guild(self, guild_id, canceller):
         return self.cancellers.update_one(
-            {"guild": guild_id}, {"$pull": {"cancellers": self._get_user(canceller)}}
-        )
+            {"guild": guild_id},
+            {"$pull": {
+                "cancellers": self._get_user(canceller)
+            }})
 
     def add_dreamer_for_guild(self, guild_id, dreamer):
         return self.dreamers.update_one(
             {"guild": guild_id},
-            {"$addToSet": {"dreamers": self._get_user(dreamer)}},
+            {"$addToSet": {
+                "dreamers": self._get_user(dreamer)
+            }},
             upsert=True,
         )
 
     def rm_dreamer_for_guild(self, guild_id, dreamer):
         return self.dreamers.update_one(
-            {"guild": guild_id}, {"$pull": {"dreamers": self._get_user(dreamer)}}
-        )
+            {"guild": guild_id},
+            {"$pull": {
+                "dreamers": self._get_user(dreamer)
+            }})
 
     def add_player_for_guild(self, guild_id, player):
         return self.players.update_one(
             {"guild": guild_id},
-            {"$addToSet": {"players": self._get_user(player)}},
+            {"$addToSet": {
+                "players": self._get_user(player)
+            }},
             upsert=True,
         )
 
     def rm_player_for_guild(self, guild_id, player):
         return self.players.update_one(
-            {"guild": guild_id}, {"$pull": {"players": self._get_user(player)}}
-        )
+            {"guild": guild_id},
+            {"$pull": {
+                "players": self._get_user(player)
+            }})
 
     def add_to_player_inventory(self, guild_id, player, item, qty):
         return self.inventories.update_one(
-            {"guild": guild_id, "player": self._get_user(player)},
-            {"$addToSet": {"inv": {"item": item.strip(), "qty": qty}}},
+            {
+                "guild": guild_id,
+                "player": self._get_user(player)
+            },
+            {"$addToSet": {
+                "inv": {
+                    "item": item.strip(),
+                    "qty": qty
+                }
+            }},
             upsert=True,
         )
 
     def rm_from_player_inventory(self, guild_id, player, item):
         return self.inventories.update_one(
-            {"guild": guild_id, "player": self._get_user(player)},
-            {"$pull": {"inv": {"item": item}}},
+            {
+                "guild": guild_id,
+                "player": self._get_user(player)
+            },
+            {"$pull": {
+                "inv": {
+                    "item": item
+                }
+            }},
         )
 
     def update_player_inventory(self, guild_id, player, item, qty):
@@ -177,7 +220,9 @@ class Tracker:
                 "player": self._get_user(player),
                 "inv.item": item.strip(),
             },
-            {"$set": {"inv.$.qty": qty}},
+            {"$set": {
+                "inv.$.qty": qty
+            }},
         )
 
     def create_guild_config(
@@ -216,19 +261,22 @@ class Tracker:
         return self.config.delete_one(query)
 
     def get_first_alert_configs(self, day_of_the_week: int):
-        return self.config.find(
-            {"config.first-alert": day_of_the_week, "config.alerts": True}
-        )
+        return self.config.find({
+            "config.first-alert": day_of_the_week,
+            "config.alerts": True
+        })
 
     def get_second_alert_configs(self, day_of_the_week: int):
-        return self.config.find(
-            {"config.second-alert": day_of_the_week, "config.alerts": True}
-        )
+        return self.config.find({
+            "config.second-alert": day_of_the_week,
+            "config.alerts": True
+        })
 
     def get_session_day_configs(self, day_of_the_week: int):
-        return self.config.find(
-            {"config.session-day": day_of_the_week, "config.alerts": True}
-        )
+        return self.config.find({
+            "config.session-day": day_of_the_week,
+            "config.alerts": True
+        })
 
     def get_voice_channel_id(self, guild_id: int) -> int:
         res = self.config.find_one({"guild": guild_id})
@@ -243,24 +291,26 @@ class Tracker:
     def register_player(self, guild_id: int, player):
         return self.players.update_one(
             {"guild": guild_id},
-            {"$addToSet": {Collections.PLAYERS: self._get_user(player)}},
+            {"$addToSet": {
+                Collections.PLAYERS: self._get_user(player)
+            }},
             upsert=True,
         )
 
     def unregister_player(self, guild_id: int, player):
         return self.players.update_one(
             {"guild": guild_id},
-            {"$pull": {Collections.PLAYERS: self._get_user(player)}},
+            {"$pull": {
+                Collections.PLAYERS: self._get_user(player)
+            }},
         )
 
     def is_full_group(self, guild_id: int) -> bool:
         # Check if all the players are registered as attendees
         players = sorted(
-            [player["id"] for player in self.get_players_for_guild(guild_id)]
-        )
+            [player["id"] for player in self.get_players_for_guild(guild_id)])
         attendees = sorted(
-            [att["id"] for att in self.get_attendees_for_guild(guild_id)]
-        )
+            [att["id"] for att in self.get_attendees_for_guild(guild_id)])
 
         # check if attendees contains all elements of players
         return all(elem in attendees for elem in players)
@@ -275,7 +325,8 @@ class Tracker:
             for player in self.get_players_for_guild(guild_id)
         }
         attendees = {
-            att["id"]: att["name"] for att in self.get_attendees_for_guild(guild_id)
+            att["id"]: att["name"]
+            for att in self.get_attendees_for_guild(guild_id)
         }
         rejections = {
             rejecter["id"]: rejecter["name"]
@@ -286,9 +337,8 @@ class Tracker:
         # set_players - set_attendees - set_rejections =
         # Result: {'a'}
         # Return the difference of two or more sets as a new set. (i.e. all elements that are in this set but not the others.)
-        unanswered_players = (
-            set(players.keys()) - set(attendees.keys()) - set(rejections.keys())
-        )
+        unanswered_players = (set(players.keys()) - set(attendees.keys()) -
+                              set(rejections.keys()))
 
         # Convert set into a list to make it easier to operate with
         unanswered_players = list(unanswered_players)
