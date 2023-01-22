@@ -188,17 +188,20 @@ async def register(ctx: Context):
 @bot.command()
 async def players(ctx: Context):
     players = tracker.get_players_for_guild(ctx.guild.id)
-    await ctx.message.channel.send(
-        embed=Embed().from_dict(
-            {
-                "title": "Registered Players",
-                "fields": [
-                    {"name": player["name"], "value": f"ID: {player['id']}"}
-                    for player in players
-                ],
-            }
+    if not players:
+        await ctx.message.channel.send(f"No players registered!")
+    else:
+        await ctx.message.channel.send(
+            embed=Embed().from_dict(
+                {
+                    "title": "Registered Players",
+                    "fields": [
+                        {"name": player["name"], "value": f"ID: {player['id']}"}
+                        for player in players
+                    ],
+                }
+            )
         )
-    )
 
 
 @bot.command()
@@ -261,9 +264,10 @@ async def cancel(ctx: Context):
 
     was_cancelled = tracker.cancel_session(guild_id)
     if was_cancelled:
-        ctx.message.channel.send(f"The upcoming session has been cancelled!")
+        await ctx.message.channel.send(f"The upcoming session has been cancelled!")
     else:
-        ctx.message.reply(f"Ran into an error cancelling the session. Please try again")
+        await ctx.message.reply(f"Ran into an error cancelling the session. Please try again")
+
 
 # Support rsvp [accept|decline]
 @bot.group()
@@ -276,6 +280,11 @@ async def rsvp(ctx: Context):
 
 @rsvp.command(name="accept")
 async def _accept(ctx: Context):
+    guild_id = ctx.guild.id
+    if tracker.is_session_cancelled(guild_id):
+        await ctx.message.reply(f"The upcoming session has been cancelled, so no need to RSVP")
+        return
+
     if not tracker.is_registered_player(ctx.guild.id, ctx.author):
         await ctx.message.reply(f"You are not a registered player in this campaign, so you can not rsvp")
     else:
@@ -306,6 +315,11 @@ async def _accept(ctx: Context):
 
 @rsvp.command(name="decline")
 async def _decline(ctx: Context):
+    guild_id = ctx.guild.id
+    if tracker.is_session_cancelled(guild_id):
+        await ctx.message.reply(f"The upcoming session has been cancelled, so no need to RSVP")
+        return
+
     if not tracker.is_registered_player(ctx.guild.id, ctx.author):
         await ctx.message.reply(f"You are not a registered player in this campaign so you can not rsvp")
     else:
@@ -420,11 +434,14 @@ async def alert_dispatcher(force=False):
 
     # DM the GM the accept/reject rsvp list
     for config in tracker.get_session_day_configs(today):
-        await bt.send_dm(config, tracker)
+        guild_id = config["guild"]
+        if not tracker.is_session_cancelled(guild_id):
+            await bt.send_dm(config, tracker)
 
     # Reset rsvp list and session cancel flag
     for config in tracker.get_session_day_configs(day_before):
         bt.reset(config, tracker)
+
 
 if __name__ == "__main__":
     try:
