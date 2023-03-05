@@ -5,10 +5,13 @@ name = "pypi"
 
 [packages]
 "discord.py" = "2.1.10"
+dpytest = "*"
 pymongo = "*"
 "pymongo[srv]" = "*"
+python-dateutil = "*"
 python-decouple = "*" # https://pypi.org/project/python-decouple/
 pytz = "*"
+pytest = "*"
 
 [dev-packages]
 flake8 = "*"
