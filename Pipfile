@@ -4,14 +4,16 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-"discord.py" = "2.1.10"
-dpytest = "*"
-pymongo = "*"
-"pymongo[srv]" = "*"
-python-dateutil = "*"
-python-decouple = "*" # https://pypi.org/project/python-decouple/
-pytz = "*"
-pytest = "*"
+"discord.py" = "2.2.2"      # https://pypi.org/project/discord.py/
+pymongo = "*"               # https://pypi.org/project/pymongo/
+"pymongo[srv]" = "*"        # https://pypi.org/project/pymongo/
+python-dateutil = "*"       # https://pypi.org/project/python-dateutil/
+python-decouple = "*"       # https://pypi.org/project/python-decouple/
+pytz = "*"                  # https://pypi.org/project/pytz/
+
+[test-packages]
+dpytest = "*"               # https://pypi.org/project/dpytest/
+pytest = "*"                # https://pypi.org/project/pytest/
 
 [dev-packages]
 flake8 = "*"
