@@ -30,6 +30,7 @@ async def bot():
     except KeyError:
         # Fall back to environment variables
         from os import environ
+
         from decouple import config
 
         token = config("token")
