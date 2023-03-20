@@ -1,7 +1,8 @@
 import datetime
 
 import pytest
-from dateutil.relativedelta import relativedelta, weekdays
+from dateutil.relativedelta import relativedelta
+from dateutil.relativedelta import weekdays
 
 import helpers
 
