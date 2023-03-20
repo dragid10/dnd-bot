@@ -30,6 +30,7 @@ async def bot():
     except KeyError:
         # Fall back to environment variables
         from os import environ
+
         from decouple import config
 
         token = config("token")
@@ -47,7 +48,9 @@ async def bot():
     intents.members = True
     intents.message_content = True
     description = """A bot to assist with hearding players for D&D sessions."""
-    bot = commands.Bot(command_prefix=bot_prefix, description=description, intents=intents)
+    bot = commands.Bot(command_prefix=bot_prefix,
+                       description=description,
+                       intents=intents)
     await bot._async_setup_hook()
     dpytest.configure(bot)
     return bot
@@ -65,11 +68,11 @@ async def cleanup():
 
 
 def pytest_sessionfinish(session, exitstatus):
-    """ Code to execute after all tests. """
+    """Code to execute after all tests."""
 
     # dat files are created when using attachements
     print("\n-------------------------\nClean dpytest_*.dat files")
-    fileList = glob.glob('./dpytest_*.dat')
+    fileList = glob.glob("./dpytest_*.dat")
     for filePath in fileList:
         try:
             os.remove(filePath)

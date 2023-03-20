@@ -1,8 +1,11 @@
 from datetime import datetime
-from enum import Enum, unique
-from typing import List, Tuple
+from enum import Enum
+from enum import unique
+from typing import List
+from typing import Tuple
 
-from dateutil.relativedelta import relativedelta, weekdays
+from dateutil.relativedelta import relativedelta
+from dateutil.relativedelta import weekdays
 from pytz import timezone
 
 est_tz = timezone("America/New_York")
@@ -66,7 +69,8 @@ def adjacent_days(dotw: int) -> Tuple[int, int]:
     :return: Tuple containing the 2 surrounding days of the week represented as integers
     """
     if dotw < 0 or dotw > 6:
-        raise ValueError(f"{dotw} is not a valid index of a weekday. Valid values are 0..6")
+        raise ValueError(
+            f"{dotw} is not a valid index of a weekday. Valid values are 0..6")
     days = [i for i in range(len(Weekdays))]
     before = days[(dotw - 1) % len(days)]
     after = days[(dotw + 1) % len(days)]
@@ -91,20 +95,27 @@ def get_next_session_day(session_day: int, session_time: str) -> datetime:
 
     # If session day is less than 0 or greater than 6, its invalid
     if session_day < 0 or session_day > 6:
-        raise ValueError(f"{session_day} is not a valid index of a weekday. Valid values are 0..6")
+        raise ValueError(
+            f"{session_day} is not a valid index of a weekday. Valid values are 0..6"
+        )
 
     # If session hour is less than 0 or greater than 24, its invalid
     if session_hr < 0 or session_hr > 23:
-        raise ValueError(f"{session_hr} is not a valid hour. Valid values are 00..23")
+        raise ValueError(
+            f"{session_hr} is not a valid hour. Valid values are 00..23")
 
     # If session min is less than 0 or greater than 59, its invalid
     if session_min < 0 or session_min > 59:
-        raise ValueError(f"{session_min} is not a valid minute. Valid values are 00..59")
+        raise ValueError(
+            f"{session_min} is not a valid minute. Valid values are 00..59")
 
     # Get current DT and localize it to EST
-    est_dt = est_tz.localize(datetime.utcnow().replace(second=0, microsecond=0))
+    est_dt = est_tz.localize(datetime.utcnow().replace(second=0,
+                                                       microsecond=0))
 
-    ret_sess_day = (est_dt + relativedelta(weekday=weekdays[session_day](1))).replace(hour=session_hr, minute=session_min)
+    ret_sess_day = (est_dt +
+                    relativedelta(weekday=weekdays[session_day](1))).replace(
+                        hour=session_hr, minute=session_min)
     return ret_sess_day
 
 
