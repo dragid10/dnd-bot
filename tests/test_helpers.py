@@ -9,10 +9,18 @@ import helpers
 
 def test_valid_plist():
     player_list = [
-        {"name": "test"},
-        {"name": "cheese"},
-        {"name": "junior"},
-        {"name": "pal_friend"},
+        {
+            "name": "test"
+        },
+        {
+            "name": "cheese"
+        },
+        {
+            "name": "junior"
+        },
+        {
+            "name": "pal_friend"
+        },
     ]
     EXPECTED_PLIST = "test, cheese, junior, pal_friend"
     ACTUAL_PLIST = helpers.plist(player_list)
@@ -40,7 +48,8 @@ def test_valid_empty_plist():
         (6, (5, 0)),
     ],
 )
-def test_valid_adjacent_days(dotw_index: int, EXPECTED_ADJACENT_DAY: tuple[int, int]):
+def test_valid_adjacent_days(dotw_index: int,
+                             EXPECTED_ADJACENT_DAY: tuple[int, int]):
     ACTUAL_ADJACENT_DAY: tuple[int, int] = helpers.adjacent_days(dotw_index)
     assert EXPECTED_ADJACENT_DAY == ACTUAL_ADJACENT_DAY
 
@@ -49,7 +58,8 @@ def test_valid_adjacent_days(dotw_index: int, EXPECTED_ADJACENT_DAY: tuple[int, 
 def test_invalid_adjacent_days(dotw_index: int):
     with pytest.raises(ValueError) as invalid_dotw:
         EXPECTED_ADJACENT_DAY = None
-        ACTUAL_ADJACENT_DAY: tuple[int, int] = helpers.adjacent_days(dotw_index)
+        ACTUAL_ADJACENT_DAY: tuple[int,
+                                   int] = helpers.adjacent_days(dotw_index)
     assert "not a valid index of a weekday" in str(invalid_dotw.value)
 
 
@@ -59,11 +69,8 @@ def test_valid_get_next_session_day(est_tz):
 
     session_hr = int(SESSION_TIME.split(":")[0])
     session_min = int(SESSION_TIME.split(":")[1])
-    curr_date = est_tz.localize(
-        datetime.datetime.today().replace(
-            hour=session_hr, minute=session_min, second=0, microsecond=0
-        )
-    )
+    curr_date = est_tz.localize(datetime.datetime.today().replace(
+        hour=session_hr, minute=session_min, second=0, microsecond=0))
 
     # Use the weekdays tuple from dateutil to get the `monday` object and find the next nth (1) monday from now
     EXPECTED_DATE = curr_date + relativedelta(weekday=weekdays[SESSION_DAY](1))
@@ -77,17 +84,18 @@ def test_invalid_dotw_get_next_session_day(est_tz):
 
     session_hr = int(SESSION_TIME.split(":")[0])
     session_min = int(SESSION_TIME.split(":")[1])
-    curr_date = datetime.datetime.today().replace(
-        hour=session_hr, minute=session_min, second=0, microsecond=0
-    )
+    curr_date = datetime.datetime.today().replace(hour=session_hr,
+                                                  minute=session_min,
+                                                  second=0,
+                                                  microsecond=0)
 
     try:
         # Use the weekdays tuple from dateutil to get the `monday` object and find the next nth (1) monday from now
         # This test won't get past this line when invalid, so we ignore its value anyway
         EXPECTED_DATE = (
-            est_tz.localize(curr_date + relativedelta(weekday=weekdays[SESSION_DAY](1)))
-            or None
-        )
+            est_tz.localize(curr_date +
+                            relativedelta(weekday=weekdays[SESSION_DAY](1)))
+            or None)
     except:
         EXPECTED_DATE = None
 
@@ -96,7 +104,8 @@ def test_invalid_dotw_get_next_session_day(est_tz):
     assert "not a valid index of a weekday" in str(invalid_dotw.value)
 
 
-@pytest.mark.parametrize("SESSION_TIME", ["31:00", "-31:00", "60:30", "-100:49"])
+@pytest.mark.parametrize("SESSION_TIME",
+                         ["31:00", "-31:00", "60:30", "-100:49"])
 def test_invalid_session_hour_get_next_session_day(est_tz, SESSION_TIME: str):
     SESSION_DAY = 1
     session_hr = int(SESSION_TIME.split(":")[0])
@@ -104,18 +113,15 @@ def test_invalid_session_hour_get_next_session_day(est_tz, SESSION_TIME: str):
 
     with pytest.raises(ValueError) as invalid_dotw:
         try:
-            curr_date = datetime.datetime.today().replace(
-                hour=session_hr, minute=session_min, second=0, microsecond=0
-            )
+            curr_date = datetime.datetime.today().replace(hour=session_hr,
+                                                          minute=session_min,
+                                                          second=0,
+                                                          microsecond=0)
 
             # Use the weekdays tuple from dateutil to get the `monday` object and find the next nth (1) monday from now
             # This test won't get past this line when invalid, so we ignore its value anyway
-            EXPECTED_DATE = (
-                est_tz.localize(
-                    curr_date + relativedelta(weekday=weekdays[SESSION_DAY](1))
-                )
-                or None
-            )
+            EXPECTED_DATE = (est_tz.localize(curr_date + relativedelta(
+                weekday=weekdays[SESSION_DAY](1))) or None)
         except:
             EXPECTED_DATE = None
 
@@ -123,7 +129,8 @@ def test_invalid_session_hour_get_next_session_day(est_tz, SESSION_TIME: str):
     assert "not a valid hour" in str(invalid_dotw.value)
 
 
-@pytest.mark.parametrize("SESSION_TIME", ["11:90", "11:-01", "06:-30", "10:69"])
+@pytest.mark.parametrize("SESSION_TIME",
+                         ["11:90", "11:-01", "06:-30", "10:69"])
 def test_invalid_session_min_get_next_session_day(est_tz, SESSION_TIME: str):
     SESSION_DAY = 1
 
@@ -132,18 +139,15 @@ def test_invalid_session_min_get_next_session_day(est_tz, SESSION_TIME: str):
 
     with pytest.raises(ValueError) as invalid_dotw:
         try:
-            curr_date = datetime.datetime.today().replace(
-                hour=session_hr, minute=session_min, second=0, microsecond=0
-            )
+            curr_date = datetime.datetime.today().replace(hour=session_hr,
+                                                          minute=session_min,
+                                                          second=0,
+                                                          microsecond=0)
 
             # Use the weekdays tuple from dateutil to get the `monday` object and find the next nth (1) monday from now
             # This test won't get past this line when invalid, so we ignore its value anyway
-            EXPECTED_DATE = (
-                est_tz.localize(
-                    curr_date + relativedelta(weekday=weekdays[SESSION_DAY](1))
-                )
-                or None
-            )
+            EXPECTED_DATE = (est_tz.localize(curr_date + relativedelta(
+                weekday=weekdays[SESSION_DAY](1))) or None)
         except:
             EXPECTED_DATE = None
 
