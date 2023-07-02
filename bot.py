@@ -5,73 +5,74 @@ from datetime import datetime
 from subprocess import check_output
 
 import discord
-from discord import Embed, Intents, ScheduledEvent, app_commands
+from discord import Embed, app_commands, ScheduledEvent
 from discord.ext import commands, tasks
 from discord.ext.commands import Context
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
-from pytz import timezone
 
-import helpers
-from helpers import Emojis, Weekdays, adjacent_days, plist
-from mongo_tracker import Tracker
-from tasks import BotTasks
+from app import helpers, constants
+from app.helpers import adjacent_days, plist, Weekdays, Emojis
+from app.mongo_tracker import Tracker
+from app.tasks import BotTasks
 
 logging.basicConfig(level=logging.DEBUG)
 
 # Load in configs
-try:
-    import configparser
-
-    # Load config
-    bot_config = configparser.ConfigParser()
-    bot_config.read("config.ini")
-    token = bot_config["secrets"]["token"]
-    bot_prefix = bot_config["discord"]["botPrefix"]
-    db_host = bot_config["db"]["host"]
-    db_port = int(bot_config["db"]["port"])
-    db_user = bot_config["db"]["user"]
-    db_password = bot_config["db"]["password"]
-    alert_time = int(bot_config["alerts"]["time"])
-    campaign_name = bot_config["campaign"]["name"] or "D&D"
-    campaign_alias = bot_config["campaign"]["alias"] or campaign_name
-    discord_vc = bot_config["discord"]["vc"]
-except KeyError:
-    # Fall back to environment variables
-    from decouple import config
-
-    token = config("token")
-    bot_prefix = config("botPrefix", default="!")
-    db_host = config("dbHost")
-    db_port = config("dbPort", cast=int)
-    db_user = config("dbUser")
-    db_password = config("dbPassword")
-    alert_time = config("alertTime", default="12", cast=int)
-    campaign_name = config("campaignName", default="D&D")
-    campaign_alias = config("campaignAlias", default=campaign_name)
-    discord_vc = config("discordVC")
+# try:
+#     import configparser
+#
+#     # Load config
+#     bot_config = configparser.ConfigParser()
+#     bot_config.read("config.ini")
+#     token = bot_config["secrets"]["token"]
+#     bot_prefix = bot_config["discord"]["botPrefix"]
+#     db_host = bot_config["db"]["host"]
+#     db_port = int(bot_config["db"]["port"])
+#     db_user = bot_config["db"]["user"]
+#     db_password = bot_config["db"]["password"]
+#     alert_time = int(bot_config["alerts"]["time"])
+#     campaign_name = bot_config["campaign"]["name"] or "D&D"
+#     campaign_alias = bot_config["campaign"]["alias"] or campaign_name
+#     discord_vc = bot_config["discord"]["vc"]
+# except KeyError:
+#     # Fall back to environment variables
+#     from os import environ
+#     from decouple import config
+#
+#     token = config("token")
+#     bot_prefix = config("botPrefix", default="!")
+#     db_host = config("dbHost")
+#     db_port = config("dbPort", cast=int)
+#     db_user = config("dbUser")
+#     db_password = config("dbPassword")
+#     alert_time = config("alertTime", default="12", cast=int)
+#     campaign_name = config("campaignName", default="D&D")
+#     campaign_alias = config("campaignAlias", default=campaign_name)
+#     discord_vc = config("discordVC")
 
 # Bot init
-tz = timezone("US/Eastern")
-intents = Intents.all()
-intents.members = True
-intents.message_content = True
-description = """A bot to assist with hearding players for D&D sessions."""
-bot = commands.Bot(command_prefix=bot_prefix, description=description, intents=intents)
-startTime = datetime.now(tz).replace(microsecond=0)
+# tz = timezone('US/Eastern')
+# intents = Intents.all()
+# intents.members = True
+# intents.message_content = True
+# description = """A bot to assist with hearding players for D&D sessions."""
+bot = commands.Bot(command_prefix=constants.discord_config.bot_prefix,
+                   description=constants.discord_config.bot_desc,
+                   intents=constants.discord_config.bot_intents)
 
-# Connect o mongo and create a client
-connect_str = f"mongodb+srv://{urllib.parse.quote(db_user)}:{urllib.parse.quote(db_password)}@{db_host}".strip()
+# Connect to mongo and create a client
+connect_str = f"mongodb+srv://{urllib.parse.quote(constants.db_config.user)}:{urllib.parse.quote(constants.db_config.password)}@{constants.db_config.host}".strip()
 mongo_client = MongoClient(connect_str)
 
 tracker = Tracker(mongo_client["dnd-bot"])
+startTime = helpers.current_time()
 
 
 # Events
 @bot.event
 async def on_ready():
     logging.debug(f"[{startTime}] - Logged in as {bot.user.name} - {bot.user.id}")
-
     await alert_dispatcher.start()
 
 
@@ -89,9 +90,9 @@ async def status(ctx: Context):
 
     # Get git commit hash, so we know what version of the bot we're running
     git = check_output(["git", "rev-parse", "--short", "HEAD"]).decode("ascii").strip()
-    now = datetime.now(tz).replace(microsecond=0)
+    now = helpers.current_time()
     await ctx.message.channel.send(
-        f"Up for **{now - startTime}** on `{git}`. Time is {datetime.now(tz).strftime('%T')} eastern. Database is **{db_status}**."
+        f"Up for **{now - startTime}** on `{git}`. Time is {datetime.now(constants.eastern_tz).strftime('%T')} eastern. Database is **{db_status}**."
     )
 
 
@@ -99,7 +100,7 @@ async def status(ctx: Context):
 async def config(ctx: Context):
     """
     Starts the config of the bot. Goes through asking the session day, when to send the first alert,
-    and when to send the second alert..
+    and when to send the second alert.
     :param ctx: Context of the discord bot
     :return:
     """
@@ -109,7 +110,7 @@ async def config(ctx: Context):
         ("second-alert", "When would you like to send the second alert?"),
     ]
     answers = [await ask_for_day(ctx, q) for q in questions]
-    session_vc_id = discord.utils.get(ctx.guild.voice_channels, name=discord_vc)
+    session_vc_id = discord.utils.get(ctx.guild.voice_channels, name=constants.discord_config.voice_channel)
     session_vc_id = session_vc_id.id
 
     def map_emoji_to_day_value(emoji):
@@ -266,7 +267,9 @@ async def cancel(ctx: Context):
 @bot.group()
 async def rsvp(ctx: Context):
     if ctx.invoked_subcommand is None:
-        await ctx.message.reply(f"Please use either `{bot_prefix}rsvp accept` or `{bot_prefix}rsvp decline`.")
+        await ctx.message.reply(
+            f"Please use either `{constants.discord_config.bot_prefix}rsvp accept` or `{constants.discord_config.bot_prefix}rsvp decline`."
+        )
 
 
 @rsvp.command(name="accept")
@@ -336,7 +339,9 @@ async def _decline(ctx: Context):
 @bot.group()
 async def vote(ctx: Context):
     if ctx.invoked_subcommand is None:
-        await ctx.message.channel.send(f"Please `{bot_prefix}vote cancel`")
+        await ctx.message.channel.send(
+            f"Please `{constants.discord_config.bot_prefix}vote cancel`"
+        )
 
 
 @vote.command(name="cancel")
@@ -369,8 +374,8 @@ async def _create_session_event(ctx: Context) -> ScheduledEvent:
     sess_day, sess_time = tracker.get_campaign_session_dt(server_id)
     next_sess = helpers.get_next_session_day(sess_day, sess_time)
     return await ctx.guild.create_scheduled_event(
-        name=f"{campaign_alias} Session!",
-        description=f"Regular {campaign_alias} session",
+        name=f"{constants.dnd_config.campaign_name} Session!",
+        description=f"Regular {constants.dnd_config.campaign_alias} session",
         start_time=next_sess,
         channel=session_vc,
         entity_type=discord.EntityType.voice,
@@ -383,17 +388,17 @@ bt = BotTasks(bot)
 
 @tasks.loop(hours=1)
 async def alert_dispatcher(force=False):
-    logging.info("Checking to see if it is time to remind players")
-    logging.debug("Logging into Discord")
-    await bot.login(token)
+    logging.info(f"Checking to see if it is time to remind players")
+    logging.debug(f"Logging into Discord")
+    await bot.login(constants.discord_config.token)
 
     # See if it's time to send message asking if players are available
-    if int(datetime.now(tz).strftime("%H")) != alert_time and force is False:
-        logging.debug("It is not yet time to alert")
+    if int(datetime.now(constants.eastern_tz).strftime("%H")) != constants.discord_config.alert_time and force is False:
+        logging.debug(f"It is not yet time to alert")
         return
 
-    logging.debug("It IS time to alert")
-    today = datetime.now(tz).weekday()
+    logging.debug(f"It IS time to alert")
+    today = datetime.now(constants.eastern_tz).weekday()
     day_before, _ = adjacent_days(today)
 
     # Check if all players have registered for the upcoming session (on the first day)
@@ -435,6 +440,6 @@ async def alert_dispatcher(force=False):
 
 if __name__ == "__main__":
     try:
-        bot.run(token)
+        bot.run(constants.discord_config.token)
     finally:
         logging.debug("Ending bot")

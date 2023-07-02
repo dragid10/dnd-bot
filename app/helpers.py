@@ -4,6 +4,8 @@ from typing import List, Tuple
 
 from pytz import timezone
 
+from app import constants
+
 est_tz = timezone("America/New_York")
 
 
@@ -76,3 +78,8 @@ def get_next_session_day(session_day, session_time) -> datetime:
 
 def callable_username(username: str):
     return f"<@{username}>".strip()
+
+
+def current_time() -> datetime:
+    time = datetime.now(constants.eastern_tz).replace(microsecond=0)
+    return time
