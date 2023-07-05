@@ -1,45 +1,14 @@
+from __future__ import annotations
+
 from datetime import datetime, timedelta
-from enum import Enum, unique
 from typing import List, Tuple
 
-from pytz import timezone
+from mongoengine import QuerySet
+from mongoengine.base import BaseDocument
+from mongoengine.queryset.base import BaseQuerySet
 
 from app import constants
-
-est_tz = timezone("America/New_York")
-
-
-@unique
-class Collections(str, Enum):
-    ATTENDEES = "attendees"
-    DECLINERS = "decliners"
-    CANCELLERS = "cancellers"
-    INVENTORIES = "inventories"
-    CONFIG = "config"
-    PLAYERS = "players"
-    CANCEL_SESSION = "cancel-session"
-
-
-@unique
-class Weekdays(int, Enum):
-    MONDAY = 0
-    TUESDAY = 1
-    WENDESAY = 2
-    THURSDAY = 3
-    FRIDAY = 4
-    SATURDAY = 5
-    SUNDAY = 6
-
-
-@unique
-class Emojis(str, Enum):
-    MONDAY = "🇲"
-    TUESDAY = "🇹"
-    WENDESAY = "🇼"
-    THURSDAY = "🇷"
-    FRIDAY = "🇫"
-    SATURDAY = "🇸"
-    SUNDAY = "🇺"
+from app.constants import Emojis, Weekdays
 
 
 def plist(inlist: List) -> str:
@@ -60,11 +29,11 @@ def adjacent_days(dotw: int) -> Tuple[int, int]:
 
 def get_next_session_day(session_day, session_time) -> datetime:
     # Get current DT and localize it to EST
-    est_dt = datetime.utcnow().astimezone(est_tz)
+    est_dt = datetime.utcnow().astimezone(constants.eastern_tz)
 
     # Figure out next session date with time deltas
     for i in range(1, 8):
-        ret_sess_day = datetime.utcnow().astimezone(est_tz)
+        ret_sess_day = datetime.utcnow().astimezone(constants.eastern_tz)
         potential_day: datetime = est_dt + timedelta(days=i)
         potential_day_dotw = potential_day.weekday()
 
@@ -83,3 +52,44 @@ def callable_username(username: str):
 def current_time() -> datetime:
     time = datetime.now(constants.eastern_tz).replace(microsecond=0)
     return time
+
+
+def _doc_to_dict(doc: BaseDocument) -> dict:
+    return doc.to_mongo().to_dict()
+
+
+def doc_to_dict(result: [BaseDocument | QuerySet]) -> dict | list[dict]:
+    """ Converts a Mongo Document object to a python dictionary
+
+    :param result: (BaseDocument | QuerySet): the BaseDocument or QuerySet object from the database
+    :return: (dict | list[dict]) A dictionary (or list of dictionaries) representation of the mongo documents
+    """
+
+    # Default value of the return
+    res = dict()
+
+    # If the arg is null or an empty list, then just return default value
+    if not result:
+        # res = dict()
+        pass
+
+    # If the arg is a Document then convert it to a dict
+    if isinstance(result, BaseDocument):
+        res = _doc_to_dict(result)
+
+    # If the arg is a list, then convert each item to a dict
+    if isinstance(result, BaseQuerySet):
+        res = []
+        for row in result:
+            dict_row = _doc_to_dict(row)
+            res.append(dict_row)
+    return res
+
+
+def emoji_to_day(emoji: str) -> str:
+    # Default value will be monday
+    ret = Emojis.MONDAY.value
+    for e in Emojis:
+        if e.value == emoji:
+            ret = Weekdays[e.name].value
+    return ret

@@ -1,7 +1,7 @@
 from typing import Any
 
-import helpers
-from helpers import plist
+from app import helpers
+from app.helpers import plist
 
 
 class BotTasks:
