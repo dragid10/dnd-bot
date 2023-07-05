@@ -4,12 +4,14 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-discord.py = { version = "2.3.1" }
+mongoengine = "*"
+more-itertools = "*"
 pymongo = "*"
 "pymongo[srv]" = "*"
+python-dateutil = "*"
 python-decouple = "*" # https://pypi.org/project/python-decouple/
 pytz = "*"
-sqlalchemy = "*"
+discord = { py = { version = "2.3.1" } }
 
 [dev-packages]
 flake8 = "*"
