@@ -142,7 +142,7 @@ async def unconfig(ctx: Context):
 
 @bot.command()
 async def register(ctx: Context):
-    db_client.register_player(ctx.guild.id, ctx.author)
+    db_client.register_player(guild_id=ctx.guild.id, dm_username=ctx.author.name, dm_id=ctx.author.id)
     await ctx.message.add_reaction("✅")
 
 

@@ -24,7 +24,7 @@ class PyMong(BaseDB):
     def get_gm_for_guild(self, guild_id: int):
         pass
 
-    def register_player(self, guild_id: int, player):
+    def register_player(self, guild_id: int, dm_username: str, dm_id: int):
         pass
 
     def get_all(self, guild_id: int):

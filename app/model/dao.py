@@ -7,6 +7,10 @@ class User(EmbeddedDocument):
     name = StringField(required=True)
     id = LongField(required=True)
 
+    @staticmethod
+    def from_discord_author(author):
+        return User(name=author.name, id=author.id)
+
 
 class _Config(EmbeddedDocument):
     session_dm = EmbeddedDocumentField(db_field="session-dm", document_type=User)
@@ -44,3 +48,6 @@ class Cancellers(Document):
 class Decliners(Document):
     guild = LongField(required=True)
     decliners = EmbeddedDocumentListField(User)
+
+
+y

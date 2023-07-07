@@ -134,7 +134,7 @@ class BaseDB(metaclass=abc.ABCMeta):
         pass
 
     @abstractmethod
-    def register_player(self, guild_id: int, player):
+    def register_player(self, guild_id: int, dm_username: str, dm_id: int):
         pass
 
     @abstractmethod
@@ -142,7 +142,8 @@ class BaseDB(metaclass=abc.ABCMeta):
         pass
 
     @abstractmethod
-    def is_full_group(self, guild_id: int) -> bool:
+    def \
+            is_full_group(self, guild_id: int) -> bool:
         pass
 
     @abstractmethod

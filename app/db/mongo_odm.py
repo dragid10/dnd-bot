@@ -46,22 +46,26 @@ class MongoEngine(BaseDB):
         # del curr_players[rm_index]
         res.save()
 
-    def register_player(self, guild_id: int, player):
+    def register_player(self, guild_id: int, dm_username: str, dm_id: int):
         pass
 
     def unregister_player(self, guild_id: int, player):
         pass
 
     def is_full_group(self, guild_id: int) -> bool:
-        players = self._get_players_by_guild_id(guild_id).players.only(f"{Collections.PLAYERS}.id")
-        attendees = self.__get_attendees_by_guild_id(guild_id).attendees.only(f"{Collections.ATTENDEES}.id")
+        players = helpers.doc_to_dict(self._get_players_by_guild_id(guild_id).players)
+        attendees = helpers.doc_to_dict(self.__get_attendees_by_guild_id(guild_id).attendees)
+        # players = self._get_players_by_guild_id(guild_id).players.only(f"{Collections.PLAYERS}.id")
+        # attendees = self.__get_attendees_by_guild_id(guild_id).attendees.only(f"{Collections.ATTENDEES}.id")
 
         # Check if all the players are registered as attendees
         res = all(elem in attendees for elem in players)
         return res
 
     def is_registered_player(self, guild_id: int, player) -> bool:
-        pass
+        user_id: int = player.id
+        res = self._get_players_by_guild_id(guild_id).players.filter(id=user_id).count()
+        return res > 0
 
     def is_player_dm(self, guild_id: int, player_id: int) -> bool:
         pass
@@ -88,7 +92,7 @@ class MongoEngine(BaseDB):
 
     # ============ Attendees ============
 
-    def __get_attendees_by_guild_id(self, guild_id: int) -> Attendees:
+    def _get_attendees_by_guild_id(self, guild_id: int) -> Attendees:
         res = Attendees.objects(guild=guild_id).get()
         return res
 
@@ -123,17 +127,28 @@ class MongoEngine(BaseDB):
         return res.get(Collections.DECLINERS, [])
 
     def add_decliner_for_guild(self, guild_id: int, decliner):
-        pass
+        res = self._get_decliners_by_guild_id(guild_id)
+        res.decliners.create(User.from_discord_author(decliner))
+        res.save()
 
     def rm_decliner_for_guild(self, guild_id: int, decliner):
         pass
 
     # ============ Cancellers ============
+
+    def _get_cancellers_by_guild_id(self, guild_id: int):
+        res = Cancellers.objects(guild=guild_id).get()
+        return res
+
     def get_cancellers_for_guild(self, guild_id: int) -> list[dict]:
-        pass
+        res = self._get_cancellers_by_guild_id(guild_id)
+        res = helpers.doc_to_dict(res)
+        return res
 
     def add_canceller_for_guild(self, guild_id: int, canceller):
-        pass
+        res = self._get_cancellers_by_guild_id(guild_id)
+        res.cancellers.create(User.from_discord_author(canceller))
+        res.save()
 
     def rm_canceller_for_guild(self, guild_id: int, canceller):
         pass
@@ -156,16 +171,24 @@ class MongoEngine(BaseDB):
         pass
 
     def reset(self, guild_id: int):
-        pass
+        self._get_attendees_by_guild_id(guild_id).delete().save()
+        self._get_decliners_by_guild_id(guild_id).delete().save()
+        self._get_cancellers_by_guild_id(guild_id).delete().save()
+        self.reset_cancel_flag(guild_id)
 
     def skip(self, guild_id: int):
-        pass
+        res = self._get_config_by_guild_id(guild_id)
+        res.config.skip = True
+        res.save()
 
     def cancel_session(self, guild_id: int) -> bool:
         pass
 
     def reset_cancel_flag(self, guild_id: int) -> bool:
-        pass
+        guild_config = self._get_config_by_guild_id(guild_id)
+        guild_config.config.cancel_session = False
+        guild_config.save()
+        return True
 
     def create_guild_config(self, guild_id: int, voice_channel_id: int, dm_username: str, dm_id: int, session_day: str, session_time: str,
                             meeting_room: int,
@@ -184,7 +207,9 @@ class MongoEngine(BaseDB):
         new_config.save(cascade=True)
 
     def rm_guild_config(self, guild_id: int):
-        pass
+        res = self._get_config_by_guild_id(guild_id)
+        res.delete()
+        res.save()
 
     def get_first_alert_configs(self, day_of_the_week: int):
         res_configs = Config.objects(config__first_alert=day_of_the_week, config__alerts=True)
