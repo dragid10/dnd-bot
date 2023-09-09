@@ -97,10 +97,6 @@ class PyMong(BaseDB):
         self.cancellers.delete_one(query)
         self.reset_cancel_flag(guild_id)
 
-    def skip(self, guild_id):
-        query = {"guild": guild_id}
-        self.db.config.update_one({query}, {"config.alerts": False})
-
     def cancel_session(self, guild_id: int) -> bool:
         guild_config = self.get_config_for_guild(guild_id)
         guild_config.update({Collections.CANCEL_SESSION: True})

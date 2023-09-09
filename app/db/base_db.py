@@ -5,7 +5,7 @@ from abc import abstractmethod
 class BaseDB(metaclass=abc.ABCMeta):
 
     @abstractmethod
-    def connect(self):
+    def connect(self, conn_str: str = None):
         pass
 
     @abstractmethod
@@ -55,10 +55,6 @@ class BaseDB(metaclass=abc.ABCMeta):
 
     @abstractmethod
     def reset(self, guild_id: int):
-        pass
-
-    @abstractmethod
-    def skip(self, guild_id: int):
         pass
 
     @abstractmethod
@@ -134,7 +130,7 @@ class BaseDB(metaclass=abc.ABCMeta):
         pass
 
     @abstractmethod
-    def register_player(self, guild_id: int, dm_username: str, dm_id: int):
+    def register_player(self, guild_id: int, player_username: str, player_id: int):
         pass
 
     @abstractmethod

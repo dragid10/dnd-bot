@@ -102,10 +102,11 @@ async def ask_for_time(ctx: Context):
     def check(m):
         return ctx.author == m.author
 
+    to_return = None
     try:
-        response = await bot.wait_for("message", timeout=60.0, check=check)
+        response = await bot.wait_for("message", timeout=90.0, check=check)
     except TimeoutError:
-        await ctx.message.channel.send("Fail! React faster!")
+        await ctx.message.channel.send("Please respond faster")
         to_return = None
     else:
         to_return = response.content.strip()
@@ -122,8 +123,9 @@ async def ask_for_day(ctx, ask: tuple):
     def check(reaction, user):
         return user == ctx.author and any(e.value == str(reaction) for e in Emojis)
 
+    to_return = None
     try:
-        reaction, _ = await bot.wait_for("reaction_add", timeout=20.0, check=check)
+        reaction, _ = await bot.wait_for("reaction_add", timeout=60.0, check=check)
     except TimeoutError:
         await ctx.message.channel.send("Fail! React faster!")
         to_return = None
@@ -183,12 +185,6 @@ async def reset(ctx: Context):
 @bot.command()
 async def alert(ctx: Context):
     await alert_dispatcher(force=True)
-
-
-@bot.command()
-async def skip(ctx: Context):
-    db_client.skip(ctx.guild.id)
-    await ctx.message.channel.send("Skipping this week!")
 
 
 @bot.command()

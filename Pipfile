@@ -12,11 +12,14 @@ python-dateutil = "*"
 python-decouple = "*" # https://pypi.org/project/python-decouple/
 pytz = "*"
 discord = { py = { version = "2.3.1" } }
+mongomock = "*"
 
 [dev-packages]
+black = "*"
 flake8 = "*"
 mypy = "*"
-black = "*"
+pytest = "*"
+pytest-randomly = "*"
 
 [requires]
 python_version = "3.11"

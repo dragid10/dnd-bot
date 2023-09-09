@@ -28,6 +28,7 @@ All commands must be prefixed (e.g. `!ping`). The prefix is determined by the [s
 
 ## Config
 
+<!-- TODO: Update with latest configs -->
 Server-side configuration is done via a config file. Copy `config-template.ini` to `config.ini` and fill in the details.
 
 ```ini

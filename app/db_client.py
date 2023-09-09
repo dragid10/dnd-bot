@@ -12,7 +12,7 @@ class Tracker:
 
     # ============ Attendees ============
     def get_attendees_for_guild(self, guild_id: int):
-        self.db.get_attendees_for_guild(guild_id)
+        return self.db.get_attendees_for_guild(guild_id)
 
     # ============ Config ============
     def create_guild_config(self,
@@ -51,37 +51,52 @@ class Tracker:
         return self.db.get_unanswered_players(guild_id)
 
     def get_session_day_configs(self, day_of_week: int):
-        self.db.get_session_day_configs(day_of_week)
+        return self.db.get_session_day_configs(day_of_week)
 
-    def register_player(self, guild_id: int, dm_username: str, dm_id: int):
-        return self.db.register_player(guild_id=guild_id, dm_username=dm_username, dm_id=dm_id)
+    def register_player(self, guild_id: int, player_username: str, player_id: int):
+        return self.db.register_player(guild_id=guild_id, player_username=player_username, player_id=player_id)
 
     def rm_guild_config(self, guild_id: int):
         return self.db.rm_guild_config(guild_id=guild_id)
 
     def reset(self, guild_id: int):
-        self.db.reset(guild_id=guild_id)
-
-    def skip(self, guild_id: int):
-        self.db.skip(guild_id=guild_id)
+        return self.db.reset(guild_id=guild_id)
 
     def get_all(self, guild_id: int):
-        self.db.get_all(guild_id=guild_id)
+        return self.db.get_all(guild_id=guild_id)
 
     def add_canceller_for_guild(self, guild_id: int, canceller):
-        self.db.add_canceller_for_guild(guild_id=guild_id, canceller=canceller)
+        return self.db.add_canceller_for_guild(guild_id=guild_id, canceller=canceller)
 
     def get_cancellers_for_guild(self, guild_id: int):
-        self.db.add_canceller_for_guild(guild_id=guild_id)
+        return self.db.get_cancellers_for_guild(guild_id=guild_id)
 
     def is_registered_player(self, guild_id: int, user):
         return self.db.is_registered_player(guild_id=guild_id, player=user)
 
     def add_decliner_for_guild(self, guild_id: int, user):
-        self.db.add_decliner_for_guild(guild_id=guild_id, decliner=user)
+        return self.db.add_decliner_for_guild(guild_id=guild_id, decliner=user)
 
     def get_decliners_for_guild(self, guild_id: int):
-        self.db.get_decliners_for_guild(guild_id=guild_id)
+        return self.db.get_decliners_for_guild(guild_id=guild_id)
 
     def rm_attendee_for_guild(self, guild_id: int, user):
-        self.db.rm_attendee_for_guild(guild_id=guild_id, attendee=user)
+        return self.db.rm_attendee_for_guild(guild_id=guild_id, attendee=user)
+
+    def add_attendee_for_guild(self, guild_id: int, user):
+        return self.db.add_attendee_for_guild(guild_id=guild_id, attendee=user)
+
+    def rm_decliner_for_guild(self, guild_id: int, user):
+        return self.db.rm_decliner_for_guild(guild_id=guild_id, decliner=user)
+
+    def is_player_dm(self, guild_id: int, player_id: int):
+        return self.db.is_player_dm(guild_id=guild_id, player_id=player_id)
+
+    def cancel_session(self, guild_id: int):
+        return self.db.cancel_session(guild_id=guild_id)
+
+    def get_voice_channel_id(self, server_id: int):
+        return self.db.get_voice_channel_id(guild_id=server_id)
+
+    def get_campaign_session_dt(self, server_id: int):
+        return self.db.get_campaign_session_dt(guild_id=server_id)

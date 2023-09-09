@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from typing import List, Tuple
 
 from mongoengine import QuerySet
-from mongoengine.base import BaseDocument
+from mongoengine.base import BaseDocument, EmbeddedDocumentList
 from mongoengine.queryset.base import BaseQuerySet
 
 from app import constants
@@ -78,7 +78,7 @@ def doc_to_dict(result: [BaseDocument | QuerySet]) -> dict | list[dict]:
         res = _doc_to_dict(result)
 
     # If the arg is a list, then convert each item to a dict
-    if isinstance(result, BaseQuerySet):
+    if isinstance(result, BaseQuerySet | EmbeddedDocumentList):
         res = []
         for row in result:
             dict_row = _doc_to_dict(row)

@@ -48,6 +48,3 @@ class Cancellers(Document):
 class Decliners(Document):
     guild = LongField(required=True)
     decliners = EmbeddedDocumentListField(User)
-
-
-y
