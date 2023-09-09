@@ -101,13 +101,7 @@ class PyMong(BaseDB):
         guild_config = self.get_config_for_guild(guild_id)
         guild_config.update({Collections.CANCEL_SESSION: True})
         res: UpdateResult = self.config.update_one(
-            {"guild": guild_id},
-            {
-                "$set": {
-                    "config": guild_config
-                }
-            },
-            upsert=True
+            {"guild": guild_id}, {"$set": {"config": guild_config}}, upsert=True
         )
         return True if res.acknowledged else False
 
@@ -115,13 +109,7 @@ class PyMong(BaseDB):
         guild_config = self.get_config_for_guild(guild_id)
         guild_config.update({Collections.CANCEL_SESSION: False})
         res = self.config.update_one(
-            {"guild": guild_id},
-            {
-                "$set": {
-                    "config": guild_config
-                }
-            },
-            upsert=True
+            {"guild": guild_id}, {"$set": {"config": guild_config}}, upsert=True
         )
 
         return True if res.acknowledged else False
@@ -175,17 +163,17 @@ class PyMong(BaseDB):
         )
 
     def create_guild_config(
-            self,
-            guild_id: int,
-            voice_channel_id: int,
-            dm_username: str,
-            dm_id: int,
-            session_day: str,
-            session_time: str,
-            meeting_room: int,
-            first_alert: str,
-            second_alert: str,
-            cancel_session: bool = False
+        self,
+        guild_id: int,
+        voice_channel_id: int,
+        dm_username: str,
+        dm_id: int,
+        session_day: str,
+        session_time: str,
+        meeting_room: int,
+        first_alert: str,
+        second_alert: str,
+        cancel_session: bool = False,
     ):
         return self.config.update_one(
             {"guild": guild_id},
@@ -201,7 +189,7 @@ class PyMong(BaseDB):
                         "first-alert": first_alert,
                         "second-alert": second_alert,
                         "alerts": True,
-                        "cancel-session": cancel_session
+                        "cancel-session": cancel_session,
                     },
                 }
             },
@@ -245,8 +233,12 @@ class PyMong(BaseDB):
 
     def is_full_group(self, guild_id: int) -> bool:
         # Check if all the players are registered as attendees
-        players = sorted([player["id"] for player in self.get_players_for_guild(guild_id)])
-        attendees = sorted([att["id"] for att in self.get_attendees_for_guild(guild_id)])
+        players = sorted(
+            [player["id"] for player in self.get_players_for_guild(guild_id)]
+        )
+        attendees = sorted(
+            [att["id"] for att in self.get_attendees_for_guild(guild_id)]
+        )
 
         # check if attendees contains all elements of players
         return all(elem in attendees for elem in players)
@@ -263,15 +255,25 @@ class PyMong(BaseDB):
         return self._get_session_cancel_flag(guild_id)
 
     def get_unanswered_players(self, guild_id: int):
-        players = {player["id"]: player["name"] for player in self.get_players_for_guild(guild_id)}
-        attendees = {att["id"]: att["name"] for att in self.get_attendees_for_guild(guild_id)}
-        rejections = {rejecter["id"]: rejecter["name"] for rejecter in self.get_decliners_for_guild(guild_id)}
+        players = {
+            player["id"]: player["name"]
+            for player in self.get_players_for_guild(guild_id)
+        }
+        attendees = {
+            att["id"]: att["name"] for att in self.get_attendees_for_guild(guild_id)
+        }
+        rejections = {
+            rejecter["id"]: rejecter["name"]
+            for rejecter in self.get_decliners_for_guild(guild_id)
+        }
 
         # Players: {'a', 'b', 'c', 'd'} | Attendees: {'b', 'd'} | Rejections: {'c'}
         # set_players - set_attendees - set_rejections =
         # Result: {'a'}
         # Return the difference of two or more sets as a new set. (i.e. all elements that are in this set but not the others.)
-        unanswered_players = set(players.keys()) - set(attendees.keys()) - set(rejections.keys())
+        unanswered_players = (
+            set(players.keys()) - set(attendees.keys()) - set(rejections.keys())
+        )
 
         # Convert set into a list to make it easier to operate with
         unanswered_players = list(unanswered_players)

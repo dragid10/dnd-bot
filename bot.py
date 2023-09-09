@@ -25,9 +25,11 @@ logging.basicConfig(level=logging.DEBUG)
 # intents.members = True
 # intents.message_content = True
 # description = """A bot to assist with hearding players for D&D sessions."""
-bot = commands.Bot(command_prefix=constants.discord_config.bot_prefix,
-                   description=constants.discord_config.bot_desc,
-                   intents=constants.discord_config.bot_intents)
+bot = commands.Bot(
+    command_prefix=constants.discord_config.bot_prefix,
+    description=constants.discord_config.bot_desc,
+    intents=constants.discord_config.bot_intents,
+)
 
 # Connect to mongo and create a client
 db_client = Tracker(MongoEngine())
@@ -63,23 +65,26 @@ async def status(ctx: Context):
 
 @bot.command()
 async def config(ctx: Context):
-    """ Starts the config of the bot. Goes through asking the session day, when to send the first alert, and when to send the second alert.
+    """Starts the config of the bot. Goes through asking the session day, when to send the first alert, and when to send the second alert.
 
     :param ctx: Context of the discord bot
     :return:
     """
-    questions: list[tuple] = [("session-day", "What day of the week is the session typically had?"),
-                              ("first-alert", "When would you like to send the first alert?"),
-                              ("second-alert", "When would you like to send the second alert?")]
+    questions: list[tuple] = [
+        ("session-day", "What day of the week is the session typically had?"),
+        ("first-alert", "When would you like to send the first alert?"),
+        ("second-alert", "When would you like to send the second alert?"),
+    ]
     answers = [await ask_for_day(ctx, q) for q in questions]
-    session_vc_id = discord.utils.get(ctx.guild.voice_channels, name=constants.discord_config.voice_channel)
+    session_vc_id = discord.utils.get(
+        ctx.guild.voice_channels, name=constants.discord_config.voice_channel
+    )
     session_vc_id = session_vc_id.id
 
     # Whatever emoji is clicked in discord, will be mapped to a day of the week str
     mapped_answers = [helpers.emoji_to_day(a) for a in answers]
     bot_config = {
-        questions[i][0]: mapped_answers[i]
-        for i in range(len(mapped_answers))
+        questions[i][0]: mapped_answers[i] for i in range(len(mapped_answers))
     }
     bot_config["session-time"] = await ask_for_time(ctx)
     db_client.create_guild_config(
@@ -97,7 +102,9 @@ async def config(ctx: Context):
 
 
 async def ask_for_time(ctx: Context):
-    my_message = await ctx.message.channel.send("Configure Session time ET (24h HH:MM):")
+    my_message = await ctx.message.channel.send(
+        "Configure Session time ET (24h HH:MM):"
+    )
 
     def check(m):
         return ctx.author == m.author
@@ -144,7 +151,9 @@ async def unconfig(ctx: Context):
 
 @bot.command()
 async def register(ctx: Context):
-    db_client.register_player(guild_id=ctx.guild.id, dm_username=ctx.author.name, dm_id=ctx.author.id)
+    db_client.register_player(
+        guild_id=ctx.guild.id, dm_username=ctx.author.name, dm_id=ctx.author.id
+    )
     await ctx.message.add_reaction("✅")
 
 
@@ -211,14 +220,18 @@ async def cancel(ctx: Context):
 
     # If player calling command isn't DM, then tell them so and return
     if not db_client.is_player_dm(guild_id, player_id):
-        await ctx.message.reply(f"Sorry this is a DM-only command. Have the DM run this instead")
+        await ctx.message.reply(
+            f"Sorry this is a DM-only command. Have the DM run this instead"
+        )
         return
 
     was_cancelled = db_client.cancel_session(guild_id)
     if was_cancelled:
         await ctx.message.channel.send("The upcoming session has been cancelled!")
     else:
-        await ctx.message.reply("Ran into an error cancelling the session. Please try again")
+        await ctx.message.reply(
+            f"Ran into an error cancelling the session. Please try again"
+        )
 
 
 # Support rsvp [accept|decline]
@@ -234,11 +247,15 @@ async def rsvp(ctx: Context):
 async def _accept(ctx: Context):
     guild_id = ctx.guild.id
     if db_client.is_session_cancelled(guild_id):
-        await ctx.message.reply(f"The upcoming session has been cancelled, so no need to RSVP")
+        await ctx.message.reply(
+            f"The upcoming session has been cancelled, so no need to RSVP"
+        )
         return
 
     if not db_client.is_registered_player(ctx.guild.id, ctx.author):
-        await ctx.message.reply(f"You are not a registered player in this campaign, so you can not rsvp")
+        await ctx.message.reply(
+            f"You are not a registered player in this campaign, so you can not rsvp"
+        )
     else:
         db_client.add_attendee_for_guild(ctx.guild.id, ctx.author)
         await ctx.message.reply(
@@ -251,7 +268,9 @@ async def _accept(ctx: Context):
                         },
                         {
                             "name": "Attendees",
-                            "value": plist(db_client.get_attendees_for_guild(ctx.guild.id)),
+                            "value": plist(
+                                db_client.get_attendees_for_guild(ctx.guild.id)
+                            ),
                         },
                     ]
                 }
@@ -270,11 +289,15 @@ async def _accept(ctx: Context):
 async def _decline(ctx: Context):
     guild_id = ctx.guild.id
     if db_client.is_session_cancelled(guild_id):
-        await ctx.message.reply(f"The upcoming session has been cancelled, so no need to RSVP")
+        await ctx.message.reply(
+            f"The upcoming session has been cancelled, so no need to RSVP"
+        )
         return
 
     if not db_client.is_registered_player(ctx.guild.id, ctx.author):
-        await ctx.message.reply(f"You are not a registered player in this campaign so you can not rsvp")
+        await ctx.message.reply(
+            f"You are not a registered player in this campaign so you can not rsvp"
+        )
     else:
         db_client.add_decliner_for_guild(ctx.guild.id, ctx.author)
         await ctx.message.reply(
@@ -284,7 +307,9 @@ async def _decline(ctx: Context):
                         {"name": "Declined", "value": "No problem, see you next time!"},
                         {
                             "name": "Those that have declined",
-                            "value": plist(db_client.get_decliners_for_guild(ctx.guild.id)),
+                            "value": plist(
+                                db_client.get_decliners_for_guild(ctx.guild.id)
+                            ),
                         },
                     ]
                 }
@@ -315,7 +340,9 @@ async def _vote_cancel(ctx: Context):
                     },
                     {
                         "name": "Others that have cancelled",
-                        "value": plist(db_client.get_cancellers_for_guild(ctx.guild.id)),
+                        "value": plist(
+                            db_client.get_cancellers_for_guild(ctx.guild.id)
+                        ),
                     },
                 ]
             }
@@ -351,7 +378,11 @@ async def alert_dispatcher(force=False):
     await bot.login(constants.discord_config.token)
 
     # See if it's time to send message asking if players are available
-    if int(datetime.now(constants.eastern_tz).strftime("%H")) != constants.discord_config.alert_time and force is False:
+    if (
+        int(datetime.now(constants.eastern_tz).strftime("%H"))
+        != constants.discord_config.alert_time
+        and force is False
+    ):
         logging.debug(f"It is not yet time to alert")
         return
 

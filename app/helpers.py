@@ -59,7 +59,7 @@ def _doc_to_dict(doc: BaseDocument) -> dict:
 
 
 def doc_to_dict(result: [BaseDocument | QuerySet]) -> dict | list[dict]:
-    """ Converts a Mongo Document object to a python dictionary
+    """Converts a Mongo Document object to a python dictionary
 
     :param result: (BaseDocument | QuerySet): the BaseDocument or QuerySet object from the database
     :return: (dict | list[dict]) A dictionary (or list of dictionaries) representation of the mongo documents
