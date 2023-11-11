@@ -189,22 +189,27 @@ class MongoEngine(BaseDB):
         pass
 
     def reset(self, guild_id: int):
-        self._get_attendees_by_guild_id(guild_id).delete().save()
-        self._get_decliners_by_guild_id(guild_id).delete().save()
-        self._get_cancellers_by_guild_id(guild_id).delete().save()
+        self._get_attendees_by_guild_id(guild_id).delete()
+        # self._get_attendees_by_guild_id(guild_id).delete().save()
+        self._get_decliners_by_guild_id(guild_id).delete()
+        # self._get_decliners_by_guild_id(guild_id).delete().save()
+        self._get_cancellers_by_guild_id(guild_id).delete()
+        # self._get_cancellers_by_guild_id(guild_id).delete().save()
         self.reset_cancel_flag(guild_id)
 
     def cancel_session(self, guild_id: int) -> bool:
         res = self._get_config_by_guild_id(guild_id)
         res.config.cancel_session = True
         res.save()
-        return True
+        is_cancelled = self._get_config_by_guild_id(guild_id)
+        return is_cancelled.config.cancel_session
 
     def reset_cancel_flag(self, guild_id: int) -> bool:
         guild_config = self._get_config_by_guild_id(guild_id)
         guild_config.config.cancel_session = False
         guild_config.save()
-        return True
+        is_uncancelled = self._get_config_by_guild_id(guild_id)
+        return is_uncancelled.config.cancel_session
 
     def create_guild_config(
         self,
@@ -235,7 +240,6 @@ class MongoEngine(BaseDB):
     def rm_guild_config(self, guild_id: int):
         res = self._get_config_by_guild_id(guild_id)
         res.delete()
-        res.save()
 
     def get_first_alert_configs(self, day_of_the_week: int):
         res_configs = Config.objects(
@@ -262,7 +266,7 @@ class MongoEngine(BaseDB):
         res = self._get_config_by_guild_id(guild_id)
         return res.config.vc_id
 
-    def get_campaign_session_dt(self, guild_id: int) -> tuple[str, str]:
+    def get_campaign_session_dt(self, guild_id: int) -> tuple[int, str]:
         res = self._get_config_by_guild_id(guild_id)
         return res.config.session_day, res.config.session_time
 
