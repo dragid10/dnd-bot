@@ -71,7 +71,7 @@ def doc_to_dict(result: [BaseDocument | QuerySet]) -> dict | list[dict]:
     # If the arg is null or an empty list, then just return default value
     if not result:
         # res = dict()
-        pass
+        return res
 
     # If the arg is a Document then convert it to a dict
     if isinstance(result, BaseDocument):
