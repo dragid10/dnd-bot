@@ -1,6 +1,6 @@
 FROM python:3.11
-RUN pip install pipenv
+RUN pip install poetry
 COPY . /dnd-bot
 WORKDIR /dnd-bot
-RUN pipenv install --deploy
-CMD [ "pipenv", "run", "python3", "bot.py" ]
+RUN poetry install
+CMD [ "poetry", "run", "python3", "-m", "bot"]
