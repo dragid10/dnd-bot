@@ -5,7 +5,7 @@ from datetime import datetime
 from subprocess import check_output
 
 import discord
-from discord import Embed, Intents, app_commands, ScheduledEvent
+from discord import Embed, Intents, ScheduledEvent, app_commands
 from discord.ext import commands, tasks
 from discord.ext.commands import Context
 from pymongo import MongoClient
@@ -13,7 +13,7 @@ from pymongo.errors import ConnectionFailure
 from pytz import timezone
 
 import helpers
-from helpers import adjacent_days, plist, Weekdays, Emojis
+from helpers import Emojis, Weekdays, adjacent_days, plist
 from mongo_tracker import Tracker
 from tasks import BotTasks
 
@@ -38,7 +38,6 @@ try:
     discord_vc = bot_config["discord"]["vc"]
 except KeyError:
     # Fall back to environment variables
-    from os import environ
     from decouple import config
 
     token = config("token")
@@ -53,7 +52,7 @@ except KeyError:
     discord_vc = config("discordVC")
 
 # Bot init
-tz = timezone('US/Eastern')
+tz = timezone("US/Eastern")
 intents = Intents.all()
 intents.members = True
 intents.message_content = True
@@ -81,7 +80,7 @@ async def on_ready():
 async def status(ctx: Context):
     try:
         # Try a quick ping to make sure things can connect
-        mongo_client['admin'].command("ping")
+        mongo_client["admin"].command("ping")
     except ConnectionFailure as ce:
         db_status = "offline"
         logging.exception(ce)
@@ -104,9 +103,11 @@ async def config(ctx: Context):
     :param ctx: Context of the discord bot
     :return:
     """
-    questions: list[tuple] = [("session-day", "What day is the session typically had?"),
-                              ("first-alert", "When would you like to send the first alert?"),
-                              ("second-alert", "When would you like to send the second alert?")]
+    questions: list[tuple] = [
+        ("session-day", "What day is the session typically had?"),
+        ("first-alert", "When would you like to send the first alert?"),
+        ("second-alert", "When would you like to send the second alert?"),
+    ]
     answers = [await ask_for_day(ctx, q) for q in questions]
     session_vc_id = discord.utils.get(ctx.guild.voice_channels, name=discord_vc)
     session_vc_id = session_vc_id.id
@@ -117,10 +118,7 @@ async def config(ctx: Context):
                 return Weekdays[e.name].value
 
     mapped_answers = [map_emoji_to_day_value(a) for a in answers]
-    config = {
-        questions[i][0]: mapped_answers[i]
-        for i in range(len(mapped_answers))
-    }
+    config = {questions[i][0]: mapped_answers[i] for i in range(len(mapped_answers))}
     config["session-time"] = await ask_for_time(ctx)
     tracker.create_guild_config(
         guild_id=ctx.guild.id,
@@ -189,16 +187,13 @@ async def register(ctx: Context):
 async def players(ctx: Context):
     players = tracker.get_players_for_guild(ctx.guild.id)
     if not players:
-        await ctx.message.channel.send(f"No players registered!")
+        await ctx.message.channel.send("No players registered!")
     else:
         await ctx.message.channel.send(
             embed=Embed().from_dict(
                 {
                     "title": "Registered Players",
-                    "fields": [
-                        {"name": player["name"], "value": f"ID: {player['id']}"}
-                        for player in players
-                    ],
+                    "fields": [{"name": player["name"], "value": f"ID: {player['id']}"} for player in players],
                 }
             )
         )
@@ -210,9 +205,7 @@ async def cmds(ctx: Context):
         embed=Embed().from_dict(
             {
                 "title": "Available Commands",
-                "fields": [
-                    {"name": cmd.name, "value": f"`{cmd.name}`"} for cmd in bot.commands
-                ],
+                "fields": [{"name": cmd.name, "value": f"`{cmd.name}`"} for cmd in bot.commands],
             }
         )
     )
@@ -259,34 +252,32 @@ async def cancel(ctx: Context):
 
     # If player calling command isn't DM, then tell them so and return
     if not tracker.is_player_dm(guild_id, player_id):
-        await ctx.message.reply(f"Sorry this is a DM-only command. Have the DM run this instead")
+        await ctx.message.reply("Sorry this is a DM-only command. Have the DM run this instead")
         return
 
     was_cancelled = tracker.cancel_session(guild_id)
     if was_cancelled:
-        await ctx.message.channel.send(f"The upcoming session has been cancelled!")
+        await ctx.message.channel.send("The upcoming session has been cancelled!")
     else:
-        await ctx.message.reply(f"Ran into an error cancelling the session. Please try again")
+        await ctx.message.reply("Ran into an error cancelling the session. Please try again")
 
 
 # Support rsvp [accept|decline]
 @bot.group()
 async def rsvp(ctx: Context):
     if ctx.invoked_subcommand is None:
-        await ctx.message.reply(
-            f"Please use either `{bot_prefix}rsvp accept` or `{bot_prefix}rsvp decline`."
-        )
+        await ctx.message.reply(f"Please use either `{bot_prefix}rsvp accept` or `{bot_prefix}rsvp decline`.")
 
 
 @rsvp.command(name="accept")
 async def _accept(ctx: Context):
     guild_id = ctx.guild.id
     if tracker.is_session_cancelled(guild_id):
-        await ctx.message.reply(f"The upcoming session has been cancelled, so no need to RSVP")
+        await ctx.message.reply("The upcoming session has been cancelled, so no need to RSVP")
         return
 
     if not tracker.is_registered_player(ctx.guild.id, ctx.author):
-        await ctx.message.reply(f"You are not a registered player in this campaign, so you can not rsvp")
+        await ctx.message.reply("You are not a registered player in this campaign, so you can not rsvp")
     else:
         tracker.add_attendee_for_guild(ctx.guild.id, ctx.author)
         await ctx.message.reply(
@@ -310,18 +301,19 @@ async def _accept(ctx: Context):
     if tracker.is_full_group(ctx.guild.id):
         sess_event = await _create_session_event(ctx)
         await ctx.message.channel.send(
-            f"All players have confirmed attendance, so I've automatically created an event: {sess_event.url}")
+            f"All players have confirmed attendance, so I've automatically created an event: {sess_event.url}"
+        )
 
 
 @rsvp.command(name="decline")
 async def _decline(ctx: Context):
     guild_id = ctx.guild.id
     if tracker.is_session_cancelled(guild_id):
-        await ctx.message.reply(f"The upcoming session has been cancelled, so no need to RSVP")
+        await ctx.message.reply("The upcoming session has been cancelled, so no need to RSVP")
         return
 
     if not tracker.is_registered_player(ctx.guild.id, ctx.author):
-        await ctx.message.reply(f"You are not a registered player in this campaign so you can not rsvp")
+        await ctx.message.reply("You are not a registered player in this campaign so you can not rsvp")
     else:
         tracker.add_decliner_for_guild(ctx.guild.id, ctx.author)
         await ctx.message.reply(
@@ -344,9 +336,7 @@ async def _decline(ctx: Context):
 @bot.group()
 async def vote(ctx: Context):
     if ctx.invoked_subcommand is None:
-        await ctx.message.channel.send(
-            f"Please `{bot_prefix}vote cancel`"
-        )
+        await ctx.message.channel.send(f"Please `{bot_prefix}vote cancel`")
 
 
 @vote.command(name="cancel")
@@ -384,7 +374,7 @@ async def _create_session_event(ctx: Context) -> ScheduledEvent:
         start_time=next_sess,
         channel=session_vc,
         entity_type=discord.EntityType.voice,
-        reason="D&D Session"
+        reason="D&D Session",
     )
 
 
@@ -393,16 +383,16 @@ bt = BotTasks(bot)
 
 @tasks.loop(hours=1)
 async def alert_dispatcher(force=False):
-    logging.info(f"Checking to see if it is time to remind players")
-    logging.debug(f"Logging into Discord")
+    logging.info("Checking to see if it is time to remind players")
+    logging.debug("Logging into Discord")
     await bot.login(token)
 
     # See if it's time to send message asking if players are available
     if int(datetime.now(tz).strftime("%H")) != alert_time and force is False:
-        logging.debug(f"It is not yet time to alert")
+        logging.debug("It is not yet time to alert")
         return
 
-    logging.debug(f"It IS time to alert")
+    logging.debug("It IS time to alert")
     today = datetime.now(tz).weekday()
     day_before, _ = adjacent_days(today)
 
@@ -410,7 +400,7 @@ async def alert_dispatcher(force=False):
     for config in tracker.get_first_alert_configs(today):
         guild_id = config["guild"]
         if tracker.is_session_cancelled(guild_id):
-            logging.debug(f"Next session was cancelled! Won't alert")
+            logging.debug("Next session was cancelled! Won't alert")
             await bt.cancel_alert_msg(config)
             return
 
@@ -423,7 +413,7 @@ async def alert_dispatcher(force=False):
     for config in tracker.get_second_alert_configs(today):
         guild_id = config["guild"]
         if tracker.is_session_cancelled(guild_id):
-            logging.debug(f"Next session was cancelled! Won't alert")
+            logging.debug("Next session was cancelled! Won't alert")
             await bt.cancel_alert_msg(config)
             return
 
