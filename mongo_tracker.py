@@ -26,41 +26,37 @@ class Tracker:
 
     def get_attendees_for_guild(self, guild_id):
         try:
-            return self.attendees.find_one(
-                {"guild": guild_id}, {Collections.ATTENDEES: 1, "_id": 0}
-            )[Collections.ATTENDEES]
+            return self.attendees.find_one({"guild": guild_id}, {Collections.ATTENDEES: 1, "_id": 0})[
+                Collections.ATTENDEES
+            ]
         except TypeError:
             return []
 
     def get_decliners_for_guild(self, guild_id):
         try:
-            return self.decliners.find_one(
-                {"guild": guild_id}, {Collections.DECLINERS: 1, "_id": 0}
-            )[Collections.DECLINERS]
+            return self.decliners.find_one({"guild": guild_id}, {Collections.DECLINERS: 1, "_id": 0})[
+                Collections.DECLINERS
+            ]
         except TypeError:
             return []
 
     def get_cancellers_for_guild(self, guild_id):
         try:
-            return self.cancellers.find_one(
-                {"guild": guild_id}, {Collections.CANCELLERS: 1, "_id": 0}
-            )[Collections.CANCELLERS]
+            return self.cancellers.find_one({"guild": guild_id}, {Collections.CANCELLERS: 1, "_id": 0})[
+                Collections.CANCELLERS
+            ]
         except TypeError:
             return []
 
     def get_config_for_guild(self, guild_id):
         try:
-            return self.config.find_one(
-                {"guild": guild_id}, {Collections.CONFIG: 1, "_id": 0}
-            )[Collections.CONFIG]
+            return self.config.find_one({"guild": guild_id}, {Collections.CONFIG: 1, "_id": 0})[Collections.CONFIG]
         except TypeError:
             return None
 
     def get_players_for_guild(self, guild_id):
         try:
-            return self.players.find_one(
-                {"guild": guild_id}, {Collections.PLAYERS: 1, "_id": 0}
-            )[Collections.PLAYERS]
+            return self.players.find_one({"guild": guild_id}, {Collections.PLAYERS: 1, "_id": 0})[Collections.PLAYERS]
         except TypeError:
             return None
 
@@ -73,12 +69,10 @@ class Tracker:
 
     def get_session_cancel_flag(self, guild_id: int):
         try:
-            res = self.config.find_one(
-                {"guild": guild_id}, {Collections.CONFIG: 1, "_id": 0}
-            )[Collections.CONFIG]
+            res = self.config.find_one({"guild": guild_id}, {Collections.CONFIG: 1, "_id": 0})[Collections.CONFIG]
             res = res[Collections.CANCEL_SESSION]
             return res
-        except Exception as e:
+        except Exception:
             return None
 
     def reset(self, guild_id):
@@ -95,29 +89,13 @@ class Tracker:
     def cancel_session(self, guild_id: int) -> bool:
         guild_config = self.get_config_for_guild(guild_id)
         guild_config.update({Collections.CANCEL_SESSION: True})
-        res: UpdateResult = self.config.update_one(
-            {"guild": guild_id},
-            {
-                "$set": {
-                    "config": guild_config
-                }
-            },
-            upsert=True
-        )
+        res: UpdateResult = self.config.update_one({"guild": guild_id}, {"$set": {"config": guild_config}}, upsert=True)
         return True if res.acknowledged else False
 
     def reset_cancel_flag(self, guild_id: int) -> bool:
         guild_config = self.get_config_for_guild(guild_id)
         guild_config.update({Collections.CANCEL_SESSION: False})
-        res = self.config.update_one(
-            {"guild": guild_id},
-            {
-                "$set": {
-                    "config": guild_config
-                }
-            },
-            upsert=True
-        )
+        res = self.config.update_one({"guild": guild_id}, {"$set": {"config": guild_config}}, upsert=True)
 
         return True if res.acknowledged else False
 
@@ -129,9 +107,7 @@ class Tracker:
         )
 
     def rm_attendee_for_guild(self, guild_id, attendee):
-        return self.attendees.update_one(
-            {"guild": guild_id}, {"$pull": {"attendees": self._get_user(attendee)}}
-        )
+        return self.attendees.update_one({"guild": guild_id}, {"$pull": {"attendees": self._get_user(attendee)}})
 
     def add_decliner_for_guild(self, guild_id, decliner):
         return self.decliners.update_one(
@@ -141,9 +117,7 @@ class Tracker:
         )
 
     def rm_decliner_for_guild(self, guild_id, decliner):
-        return self.decliners.update_one(
-            {"guild": guild_id}, {"$pull": {"decliners": self._get_user(decliner)}}
-        )
+        return self.decliners.update_one({"guild": guild_id}, {"$pull": {"decliners": self._get_user(decliner)}})
 
     def add_canceller_for_guild(self, guild_id, canceller):
         return self.cancellers.update_one(
@@ -153,9 +127,7 @@ class Tracker:
         )
 
     def rm_canceller_for_guild(self, guild_id, canceller):
-        return self.cancellers.update_one(
-            {"guild": guild_id}, {"$pull": {"cancellers": self._get_user(canceller)}}
-        )
+        return self.cancellers.update_one({"guild": guild_id}, {"$pull": {"cancellers": self._get_user(canceller)}})
 
     def add_player_for_guild(self, guild_id, player):
         return self.players.update_one(
@@ -165,21 +137,19 @@ class Tracker:
         )
 
     def rm_player_for_guild(self, guild_id, player):
-        return self.players.update_one(
-            {"guild": guild_id}, {"$pull": {"players": self._get_user(player)}}
-        )
+        return self.players.update_one({"guild": guild_id}, {"$pull": {"players": self._get_user(player)}})
 
     def create_guild_config(
-            self,
-            guild_id: int,
-            vc_id: int,
-            dm_user: Member,
-            session_day: str,
-            session_time: str,
-            meeting_room: int,
-            first_alert: str,
-            second_alert: str,
-            cancel_session: bool = False
+        self,
+        guild_id: int,
+        vc_id: int,
+        dm_user: Member,
+        session_day: str,
+        session_time: str,
+        meeting_room: int,
+        first_alert: str,
+        second_alert: str,
+        cancel_session: bool = False,
     ):
         return self.config.update_one(
             {"guild": guild_id},
@@ -195,7 +165,7 @@ class Tracker:
                         "first-alert": first_alert,
                         "second-alert": second_alert,
                         "alerts": True,
-                        "cancel-session": cancel_session
+                        "cancel-session": cancel_session,
                     },
                 }
             },
@@ -207,19 +177,13 @@ class Tracker:
         return self.config.delete_one(query)
 
     def get_first_alert_configs(self, day_of_the_week: int):
-        return self.config.find(
-            {"config.first-alert": day_of_the_week, "config.alerts": True}
-        )
+        return self.config.find({"config.first-alert": day_of_the_week, "config.alerts": True})
 
     def get_second_alert_configs(self, day_of_the_week: int):
-        return self.config.find(
-            {"config.second-alert": day_of_the_week, "config.alerts": True}
-        )
+        return self.config.find({"config.second-alert": day_of_the_week, "config.alerts": True})
 
     def get_session_day_configs(self, day_of_the_week: int):
-        return self.config.find(
-            {"config.session-day": day_of_the_week, "config.alerts": True}
-        )
+        return self.config.find({"config.session-day": day_of_the_week, "config.alerts": True})
 
     def get_voice_channel_id(self, guild_id: int) -> int:
         res = self.config.find_one({"guild": guild_id})

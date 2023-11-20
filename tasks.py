@@ -41,7 +41,7 @@ class BotTasks:
 
     async def cancel_alert_msg(self, config) -> None:
         channel: Any = await self.bot.fetch_channel(config["config"]["meeting-room"])
-        await channel.send(f"Reminder, the upcoming session was cancelled!")
+        await channel.send("Reminder, the upcoming session was cancelled!")
 
     async def send_dm(self, config, tracker) -> None:
         dm: Any = await self.bot.fetch_user(config["config"]["session-dm"]["id"])
