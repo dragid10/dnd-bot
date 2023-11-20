@@ -12,12 +12,20 @@ pymongo = "*"
 python-decouple = "*"
 pytz = "*"
 
-
 [tool.poetry.group.dev.dependencies]
 flake8 = "*"
 mypy = "*"
 black = "*"
 pre-commit = "*"
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.mccabe]
+max-complexity = 8
+
+[tool.black]
+line-length = 120
 
 [build-system]
 requires = ["poetry-core"]
