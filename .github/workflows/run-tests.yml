@@ -26,8 +26,8 @@ jobs:
     - name: Install dependencies
       run: |
         curl -sSL https://install.python-poetry.org | python3 - --preview
-        if [ -f pyproject.toml ]; then poetry install --with test; fi
-        cp .env.sample .env  # ensure env vars are available to run tests
+        if [ -f pyproject.toml ]; then poetry install --with test --no-root; fi
+        cp .env-sample .env  # ensure env vars are available to run tests
     - name: Test with pytest
       run: |
         poetry run pytest --version
