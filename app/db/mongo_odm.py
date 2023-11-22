@@ -3,7 +3,7 @@ import mongoengine
 from app import constants, helpers
 from app.constants import Collections
 from app.db.base_db import BaseDB
-from app.model.dao import *
+from app.model.dao import *  # noqa: F403
 from app.model.dao import _Config
 
 
@@ -20,8 +20,8 @@ class MongoEngine(BaseDB):
         return attendees, decliners, cancellers
 
     # ============ Players ============
-    def _get_players_by_guild_id(self, guild_id: int) -> Players:
-        res = Players.objects(guild=guild_id).get()
+    def _get_players_by_guild_id(self, guild_id: int) -> Players:  # noqa: F405
+        res = Players.objects(guild=guild_id).get()  # noqa: F405
         return res
 
     def get_players_for_guild(self, guild_id: int):
@@ -29,18 +29,18 @@ class MongoEngine(BaseDB):
         res = helpers.doc_to_dict(res)
         return res.get(Collections.PLAYERS, [])
 
-    def add_player_for_guild(self, guild_id: int, player: User):
-        res: Players = self._get_players_by_guild_id(guild_id)
+    def add_player_for_guild(self, guild_id: int, player: User):  # noqa: F405
+        res: Players = self._get_players_by_guild_id(guild_id)  # noqa: F405
         res.players.create(name=player.name, id=player.id)
         res.save()
 
-    def rm_player_for_guild(self, guild_id: int, player: User):
+    def rm_player_for_guild(self, guild_id: int, player: User):  # noqa: F405
         res = self._get_players_by_guild_id(guild_id)
         res.players.filter(id=player.id).delete()
         res.save()
 
     def register_player(self, guild_id: int, player_username: str, player_id: int):
-        new_player = User(name=player_username, id=player_id)
+        new_player = User(name=player_username, id=player_id)  # noqa: F405
         self.add_player_for_guild(guild_id, new_player)
 
     def unregister_player(self, guild_id: int, player):
@@ -48,9 +48,7 @@ class MongoEngine(BaseDB):
 
     def is_full_group(self, guild_id: int) -> bool:
         players = helpers.doc_to_dict(self._get_players_by_guild_id(guild_id).players)
-        attendees = helpers.doc_to_dict(
-            self._get_attendees_by_guild_id(guild_id).attendees
-        )
+        attendees = helpers.doc_to_dict(self._get_attendees_by_guild_id(guild_id).attendees)
         # players = self._get_players_by_guild_id(guild_id).players.only(f"{Collections.PLAYERS}.id")
         # attendees = self.__get_attendees_by_guild_id(guild_id).attendees.only(f"{Collections.ATTENDEES}.id")
 
@@ -77,12 +75,8 @@ class MongoEngine(BaseDB):
             return ret
 
         players = helpers.doc_to_dict(self._get_players_by_guild_id(guild_id).players)
-        attendees = helpers.doc_to_dict(
-            self._get_attendees_by_guild_id(guild_id).attendees
-        )
-        decliners = helpers.doc_to_dict(
-            self._get_decliners_by_guild_id(guild_id).decliners
-        )
+        attendees = helpers.doc_to_dict(self._get_attendees_by_guild_id(guild_id).attendees)
+        decliners = helpers.doc_to_dict(self._get_decliners_by_guild_id(guild_id).decliners)
 
         # Transform list of users into a dictionary of id: name
         players = transform_user(players)
@@ -103,13 +97,13 @@ class MongoEngine(BaseDB):
             unanswered = ["dnd-players"]
         return unanswered
 
-    def _get_user(self, user: User):
+    def _get_user(self, user: User):  # noqa: F405
         return helpers.doc_to_dict(user)
 
     # ============ Attendees ============
 
-    def _get_attendees_by_guild_id(self, guild_id: int) -> Attendees:
-        res = Attendees.objects(guild=guild_id).get()
+    def _get_attendees_by_guild_id(self, guild_id: int) -> Attendees:  # noqa: F405
+        res = Attendees.objects(guild=guild_id).get()  # noqa: F405
         return res
 
     def get_attendees_for_guild(self, guild_id: int) -> list[dict]:
@@ -117,22 +111,22 @@ class MongoEngine(BaseDB):
         res = helpers.doc_to_dict(res)
         return res.get(Collections.ATTENDEES, [])
 
-    def add_attendee_for_guild(self, guild_id: int, attendee: User):
+    def add_attendee_for_guild(self, guild_id: int, attendee: User):  # noqa: F405
         # retrieve attendees record
-        res: Attendees = self._get_attendees_by_guild_id(guild_id)
+        res: Attendees = self._get_attendees_by_guild_id(guild_id)  # noqa: F405
         curr_attendees = res.attendees
         curr_attendees.create(name=attendee.name, id=attendee.id)
         res.save()
 
-    def rm_attendee_for_guild(self, guild_id: int, attendee: User):
+    def rm_attendee_for_guild(self, guild_id: int, attendee: User):  # noqa: F405
         res = self._get_attendees_by_guild_id(guild_id)
         res.attendees.filter(id=attendee.id).delete()
         res.save()
 
     # ============ Decliners ============
 
-    def _get_decliners_by_guild_id(self, guild_id: int) -> Decliners:
-        res = Decliners.objects(guild=guild_id).get()
+    def _get_decliners_by_guild_id(self, guild_id: int) -> Decliners:  # noqa: F405
+        res = Decliners.objects(guild=guild_id).get()  # noqa: F405
         return res
 
     def get_decliners_for_guild(self, guild_id: int) -> list[dict]:
@@ -153,7 +147,7 @@ class MongoEngine(BaseDB):
     # ============ Cancellers ============
 
     def _get_cancellers_by_guild_id(self, guild_id: int):
-        res = Cancellers.objects(guild=guild_id).get()
+        res = Cancellers.objects(guild=guild_id).get()  # noqa: F405
         return res
 
     def get_cancellers_for_guild(self, guild_id: int) -> list[dict]:
@@ -173,8 +167,8 @@ class MongoEngine(BaseDB):
 
     # ============ Config ============
 
-    def _get_config_by_guild_id(self, guild_id: int) -> Config:
-        res = Config.objects(guild=guild_id).get()
+    def _get_config_by_guild_id(self, guild_id: int) -> Config:  # noqa: F405
+        res = Config.objects(guild=guild_id).first()  # noqa: F405
         return res
 
     def get_config_for_guild(self, guild_id: int):
@@ -190,11 +184,8 @@ class MongoEngine(BaseDB):
 
     def reset(self, guild_id: int):
         self._get_attendees_by_guild_id(guild_id).delete()
-        # self._get_attendees_by_guild_id(guild_id).delete().save()
         self._get_decliners_by_guild_id(guild_id).delete()
-        # self._get_decliners_by_guild_id(guild_id).delete().save()
         self._get_cancellers_by_guild_id(guild_id).delete()
-        # self._get_cancellers_by_guild_id(guild_id).delete().save()
         self.reset_cancel_flag(guild_id)
 
     def cancel_session(self, guild_id: int) -> bool:
@@ -224,7 +215,7 @@ class MongoEngine(BaseDB):
         second_alert: str,
         cancel_session: bool = False,
     ):
-        game_master = User(name=dm_username, id=dm_id)
+        game_master = User(name=dm_username, id=dm_id)  # noqa: F405
         config_settings = _Config(
             session_dm=game_master,
             vc_id=voice_channel_id,
@@ -234,7 +225,7 @@ class MongoEngine(BaseDB):
             first_alert=first_alert,
             second_alert=second_alert,
         )
-        new_config = Config(guild=guild_id, config=config_settings)
+        new_config = Config(guild=guild_id, config=config_settings)  # noqa: F405
         new_config.save(cascade=True)
 
     def rm_guild_config(self, guild_id: int):
@@ -242,23 +233,17 @@ class MongoEngine(BaseDB):
         res.delete()
 
     def get_first_alert_configs(self, day_of_the_week: int):
-        res_configs = Config.objects(
-            config__first_alert=day_of_the_week, config__alerts=True
-        )
+        res_configs = Config.objects(config__first_alert=day_of_the_week, config__alerts=True)  # noqa: F405
         res = helpers.doc_to_dict(res_configs)
         return res
 
     def get_second_alert_configs(self, day_of_the_week: int):
-        res_configs = Config.objects(
-            config__second_alert=day_of_the_week, config__alerts=True
-        ).filter()
+        res_configs = Config.objects(config__second_alert=day_of_the_week, config__alerts=True).filter()  # noqa: F405
         res = helpers.doc_to_dict(res_configs)
         return res
 
     def get_session_day_configs(self, day_of_the_week: int):
-        res_configs = Config.objects(
-            config__session_day=day_of_the_week, config__alerts=True
-        ).filter()
+        res_configs = Config.objects(config__session_day=day_of_the_week, config__alerts=True).filter()  # noqa: F405
         res = helpers.doc_to_dict(res_configs)
         return res
 
