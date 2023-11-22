@@ -120,16 +120,10 @@ class TestMongoEngine:
         assert self.db.is_full_group(guild_id=test_guild_id) is False
 
     def test_is_registered_player(self, test_player, test_guild_id):
-        assert (
-            self.db.is_registered_player(guild_id=test_guild_id, player=test_player)
-            is True
-        )
+        assert self.db.is_registered_player(guild_id=test_guild_id, player=test_player) is True
 
     def test_is_player_dm(self, test_player, test_guild_id):
-        assert (
-            self.db.is_player_dm(guild_id=test_guild_id, player_id=test_player.id)
-            is True
-        )
+        assert self.db.is_player_dm(guild_id=test_guild_id, player_id=test_player.id) is True
 
     def test_get_unanswered_players_none(self, test_guild_id):
         expected = list()
