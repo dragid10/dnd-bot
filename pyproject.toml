@@ -6,17 +6,25 @@ authors = ["Alex Oladele <dragid10@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
 "discord.py" = "2.1.1"
-pymongo = "*"
+mongoengine = "*"
+more-itertools = "*"
+python = "^3.11"
+pymongo = "*"  # Needed specifically to do the ping/status command
+python-dateutil = "*"
 python-decouple = "*"
 pytz = "*"
 
 [tool.poetry.group.dev.dependencies]
-flake8 = "*"
-mypy = "*"
 black = "*"
+mypy = "*"
 pre-commit = "*"
+ruff = "*"
+
+[tool.poetry.group.test.dependencies]
+mongomock = "*"
+pytest = "*"
+pytest-randomly = "*"
 
 [tool.ruff]
 line-length = 120
