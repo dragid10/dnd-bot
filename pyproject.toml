@@ -6,7 +6,7 @@ authors = ["Alex Oladele <dragid10@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-"discord.py" = "2.1.1"
+"discord.py" = "2.3.2"
 mongoengine = "*"
 more-itertools = "*"
 python = "^3.11"
