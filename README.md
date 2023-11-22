@@ -28,36 +28,34 @@ All commands must be prefixed (e.g. `!ping`). The prefix is determined by the [s
 
 ## Config
 
-Server-side configuration is done via a config file. Copy `config-template.ini` to `config.ini` and fill in the details.
+<!-- TODO: Update with latest configs -->
+Server-side configuration is done via a config file. Copy `.env-sample` to `.env` and fill in the details.
 
-```ini
-[secrets]
-token = BOT_TOKEN_HERE
+```dotenv
+### Deployment
+GH_REPO_TOKEN=ghp_FakeToken
+DOCKERHUB_USERNAME=FakeUsername
+DOCKERHUB_TOKEN=dckr_pat_FakeToken
+FLY_API_TOKEN=FakeToken
 
-[discord]
+### Discord Vars
+# Prod
+discordToken=FakeToken
+botPrefix=!
+botDescr='A bot to assist with hearding players for D&D sessions.'
+alertTime=12 # 24h format
+discordVC=VoiceChannelName # Without the leading '#'
 
-# botPrefix = If you want %, you'll need this as %%
-# VC = Voice Channel name used for session
+### MongoDB Vars
+dbHost=mongodb.host
+dbPort=27017
+dbUser=FakeUser
+dbPassword=FakePassword
+dbName=dnd-bot
 
-botPrefix =
-vc =
-
-[db]
-# MongoDB connection details
-host =
-port =
-password =
-
-[alerts]
-# Hour (24H) of session time
-# Example: time = 12
-time =
-
-[campaign]
-# Campaign details! 
-# Alias would be used if you have a shortname or acronym for your campaign (if left blank, name of campaign will be used instead)
-name = 
-alias =
+### D&D vars
+campaignName='Campaign Name'
+campaignAlias=ACRONYM
 ```
 
 > Note: This can all be done with environment variables instead. In the absence of a config file, the bot will fall 
