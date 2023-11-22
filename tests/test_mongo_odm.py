@@ -292,9 +292,11 @@ class TestMongoEngine:
         assert expected == actual
 
     def test_rm_guild_config(self, test_guild_id):
+        expected = 0
         self.db.rm_guild_config(guild_id=test_guild_id)
-        with pytest.raises(DoesNotExist):
-            self.db.get_config_for_guild(guild_id=test_guild_id)
+        res = self.db.get_config_for_guild(guild_id=test_guild_id)
+        actual = len(res)
+        assert expected == actual
 
     def test_get_first_alert_configs(self, test_guild_id):
         expected = 9
