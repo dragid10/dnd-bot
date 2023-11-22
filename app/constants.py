@@ -38,7 +38,9 @@ discord_config = DiscordConfig(__token, __bot_prefix, __bot_descr, __alert_time,
 
 
 # ======== Database ========
-def __create_connect_str(username: str, password: str, host: str, database: str, port: int = 27017, dialect: str = "mongodb", **kwargs):
+def __create_connect_str(
+    username: str, password: str, host: str, database: str, port: int = 27017, dialect: str = "mongodb", **kwargs
+):
     # start a string builder, so we can put the connection uri together more easily
     conn_str = StringIO()
 
@@ -64,7 +66,8 @@ def __create_connect_str(username: str, password: str, host: str, database: str,
     conn_str.write(database)
 
     # If no options, then create str
-    if not options: return conn_str.getvalue()
+    if not options:
+        return conn_str.getvalue()
 
     # Write any db options
     conn_str.write("?")
@@ -109,14 +112,15 @@ __db_options = {"retrywrites": "true", "w": "majority"}
 db_config = DatabaseConfig(__db_host, __db_port, __db_user, __db_password, __db_name)
 
 # give db config a connection str attribute
-db_config.connection_str = __create_connect_str(username=__db_user,
-                                                password=__db_password,
-                                                host=__db_host,
-                                                port=__db_port,
-                                                database=__db_name,
-                                                dialect=__db_dialect,
-                                                **__db_options
-                                                )
+db_config.connection_str = __create_connect_str(
+    username=__db_user,
+    password=__db_password,
+    host=__db_host,
+    port=__db_port,
+    database=__db_name,
+    dialect=__db_dialect,
+    **__db_options,
+)
 
 
 # ======== D&D ========
@@ -133,14 +137,14 @@ __campaign_alias = config("campaignAlias", default=__campaign_name)
 dnd_config = DndConfig(__campaign_name, __campaign_alias)
 
 # ======== Common ========
-eastern_tz = timezone('US/Eastern')
+eastern_tz = timezone("US/Eastern")
 
 
 @unique
 class Weekdays(int, Enum):
     MONDAY = 0
     TUESDAY = 1
-    WENDESAY = 2
+    WEDNESDAY = 2
     THURSDAY = 3
     FRIDAY = 4
     SATURDAY = 5
@@ -151,7 +155,7 @@ class Weekdays(int, Enum):
 class Emojis(str, Enum):
     MONDAY = "🇲"
     TUESDAY = "🇹"
-    WENDESAY = "🇼"
+    WEDNESDAY = "🇼"
     THURSDAY = "🇷"
     FRIDAY = "🇫"
     SATURDAY = "🇸"
