@@ -730,3 +730,4 @@ __pycache__/*
 secrets-set.sh
 
 .idea/
+CLAUDE.md

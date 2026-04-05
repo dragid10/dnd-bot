@@ -3,7 +3,6 @@ from abc import abstractmethod
 
 
 class BaseDB(metaclass=abc.ABCMeta):
-
     @abstractmethod
     def connect(self, conn_str: str = None):
         pass
@@ -91,17 +90,17 @@ class BaseDB(metaclass=abc.ABCMeta):
 
     @abstractmethod
     def create_guild_config(
-            self,
-            guild_id: int,
-            voice_channel_id: int,
-            dm_username: str,
-            dm_id: int,
-            session_day: str,
-            session_time: str,
-            meeting_room: int,
-            first_alert: str,
-            second_alert: str,
-            cancel_session: bool = False
+        self,
+        guild_id: int,
+        voice_channel_id: int,
+        dm_username: str,
+        dm_id: int,
+        session_day: str,
+        session_time: str,
+        meeting_room: int,
+        first_alert: str,
+        second_alert: str,
+        cancel_session: bool = False,
     ):
         pass
 
@@ -138,8 +137,7 @@ class BaseDB(metaclass=abc.ABCMeta):
         pass
 
     @abstractmethod
-    def \
-            is_full_group(self, guild_id: int) -> bool:
+    def is_full_group(self, guild_id: int) -> bool:
         pass
 
     @abstractmethod

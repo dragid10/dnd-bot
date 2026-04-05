@@ -44,7 +44,8 @@ class MongoEngine(BaseDB):
         self.add_player_for_guild(guild_id, new_player)
 
     def unregister_player(self, guild_id: int, player):
-        pass
+        # Remove the player from the guild's registered player list
+        self.rm_player_for_guild(guild_id, player)
 
     def is_full_group(self, guild_id: int) -> bool:
         players = helpers.doc_to_dict(self._get_players_by_guild_id(guild_id).players)
@@ -57,9 +58,11 @@ class MongoEngine(BaseDB):
         return res
 
     def is_registered_player(self, guild_id: int, player) -> bool:
-        user_id: int = player.id
-        res = self._get_players_by_guild_id(guild_id).players.filter(id=user_id).count()
-        return res > 0
+        # Check if the player's ID exists in the guild's player list.
+        # Uses direct iteration instead of .filter().count() to avoid a
+        # mongoengine weak-reference bug with EmbeddedDocumentList.
+        players_doc = self._get_players_by_guild_id(guild_id)
+        return any(p.id == player.id for p in players_doc.players)
 
     def is_player_dm(self, guild_id: int, player_id: int) -> bool:
         res = self._get_config_by_guild_id(guild_id).config

@@ -1,5 +1,13 @@
-from mongoengine import BooleanField, Document, EmbeddedDocument, EmbeddedDocumentField, EmbeddedDocumentListField, IntField, LongField, \
-    StringField
+from mongoengine import (
+    BooleanField,
+    Document,
+    EmbeddedDocument,
+    EmbeddedDocumentField,
+    EmbeddedDocumentListField,
+    IntField,
+    LongField,
+    StringField,
+)
 
 
 # +++++++++++++ Embedded Documents +++++++++++++

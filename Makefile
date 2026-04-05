@@ -27,3 +27,16 @@ deploy:
 
 deploy-status:
 	flyctl status
+
+# Local development commands
+install:
+	uv sync --group dev --group test
+
+lint:
+	uv run ruff check .
+
+format:
+	uv run ruff format .
+
+test-local:
+	uv run pytest tests/

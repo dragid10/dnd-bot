@@ -44,13 +44,16 @@ class BotTasks:
         await channel.send("Reminder, the upcoming session was cancelled!")
 
     async def send_dm(self, config, tracker) -> None:
+        """DMs the GM with the accept/decline lists on session day."""
         dm: Any = await self.bot.fetch_user(config["config"]["session-dm"]["id"])
         if dm is None:
             print(f"We didn't get a user when using config: {config}")
         else:
+            server_id = config["guild"]
             await dm.send(
-                f"Confirm List: {plist(tracker.get_attendees_for_guild(config['guild']))}\nDecline list: {plist(tracker.get_decliners_for_guild(config['guild']))}"
+                f"Confirm List: {plist(tracker.get_attendees(server_id))}\nDecline list: {plist(tracker.get_decliners(server_id))}"
             )
 
     def reset(self, config, tracker) -> None:
+        """Clears all RSVP lists and the session-cancel flag for next week."""
         tracker.reset(config["guild"])

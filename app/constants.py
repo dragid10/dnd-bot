@@ -3,9 +3,10 @@ from dataclasses import dataclass, field
 from enum import Enum, unique
 from io import StringIO
 
+from zoneinfo import ZoneInfo
+
 from decouple import config
 from discord import Intents
-from pytz import timezone
 
 
 # ======== Discord ========
@@ -29,7 +30,7 @@ class DiscordConfig:
 # Read in env vars to make sure they exist
 __token = config("discordToken")
 __bot_prefix = config("botPrefix", default="!")
-__bot_descr = config("botDescr", default="A bot to assist with hearding players for D&D sessions.")
+__bot_descr = config("botDescr", default="A bot to help with scheduling D&D sessions")
 __alert_time = config("alertTime", default="12", cast=int)
 __discord_vc = config("discordVC")
 
@@ -39,7 +40,13 @@ discord_config = DiscordConfig(__token, __bot_prefix, __bot_descr, __alert_time,
 
 # ======== Database ========
 def __create_connect_str(
-    username: str, password: str, host: str, database: str, port: int = 27017, dialect: str = "mongodb", **kwargs
+    username: str,
+    password: str,
+    host: str,
+    database: str,
+    port: int = 27017,
+    dialect: str = "mongodb",
+    **kwargs,
 ):
     # start a string builder, so we can put the connection uri together more easily
     conn_str = StringIO()
@@ -137,7 +144,7 @@ __campaign_alias = config("campaignAlias", default=__campaign_name)
 dnd_config = DndConfig(__campaign_name, __campaign_alias)
 
 # ======== Common ========
-eastern_tz = timezone("US/Eastern")
+eastern_tz = ZoneInfo("US/Eastern")
 
 
 @unique
